@@ -33,22 +33,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       message: completion.choices[0].message,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in chat API:', error);
     
     // Handle specific OpenAI errors
-    if (error.status === 401) {
-      return NextResponse.json(
-        { error: 'Invalid API key. Please check your OpenAI API key.' },
-        { status: 401 }
-      );
-    }
-    
-    if (error.status === 429) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded. Please try again later.' },
-        { status: 429 }
-      );
+    if (error && typeof error === 'object' && 'status' in error) {
+      const apiError = error as { status: number };
+      
+      if (apiError.status === 401) {
+        return NextResponse.json(
+          { error: 'Invalid API key. Please check your OpenAI API key.' },
+          { status: 401 }
+        );
+      }
+      
+      if (apiError.status === 429) {
+        return NextResponse.json(
+          { error: 'Rate limit exceeded. Please try again later.' },
+          { status: 429 }
+        );
+      }
     }
 
     return NextResponse.json(
