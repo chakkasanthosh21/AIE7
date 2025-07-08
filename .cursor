@@ -83,6 +83,16 @@ This is the AIE7 (AI Engineering 7) project focused on Retrieval-Augmented Gener
 - Handle model loading and caching efficiently
 - Consider model versioning and updates
 
+## Global Development Rules
+
+### Branch Development Workflow
+**You always prefer to use branch development. Before writing any code - you create a feature branch to hold those changes.**
+
+After you are done - provide instructions in a "MERGE.md" file that explains how to merge the changes back to main with both a GitHub PR route and a GitHub CLI route.
+
+### RAG Functionality Integration
+Use Cursor (or your own mind, of course) to include the RAG functionality we discussed last week to allow users to upload PDFs and "chat with them" (interact with a RAG pipeline).
+
 ## Git Workflow
 - **ALWAYS create a feature branch before writing any code**
 - Write descriptive commit messages
