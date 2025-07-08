@@ -1,4 +1,4 @@
-# 🧑‍💻 What is [AI Engineering](https://maven.com/aimakerspace/ai-eng-bootcamp)?
+# 🧑‍💻 What is [AI Engineering](https://maven.com/aimakerspace/ai-eng-bootcamp)?
 
 Learn more about [The AI Engineering Bootcamp!](https://aimakerspace.io/the-ai-engineering-bootcamp/)
 
@@ -23,7 +23,41 @@ This bootcamp builds on our two previous courses, [LLM Engineering](https://mave
 
 - Large Language Model Engineering (LLM Engineering) refers to the emerging best-practices and tools for pretraining, post-training, and optimizing LLMs prior to production deployment.  Pre- and post-training techniques include unsupervised pretraining, supervised fine-tuning, alignment, model merging, distillation, quantization. and others.
     
-- Large Language Model Ops (LLM Ops, or LLMOps (as from [WandB](https://docs.wandb.ai/guides/prompts) and [a16z](https://a16z.com/emerging-architectures-for-llm-applications/))) refers to the emerging best-practices, tooling, and improvement processes used to manage production LLM applications throughout the AI product lifecycle.  LLM Ops is a subset of Machine Learning Operations (MLOps) that focuses on LLM-specific infrastructure and ops capabilities required to build, deploy, monitor, and scale complex LLM applications in production environments.  _This term is being used much less in industry these days._
+- Large Language Model Ops (LLM Ops, or LLMOps (as from [WandB](https://docs.wandb.ai/guides/prompts) and [a16z](https://a16z.com/emerging-architectures-for-llm-applications/))) refers to the emerging best-practices, tooling, and improvement processes used to manage production LLM applications throughout the AI product lifecycle.  LLM Ops is a subset of Machine Learning Operations (MLOps) that focuses on LLM-specific infrastructure and ops capabilities required to build, deploy, monitor, and scale complex LLM applications in production environments.  _This term is being used much less in industry these days._
+
+# 🛠️ **Setup and Dependencies**
+
+## Prerequisites
+- Python 3.11 or higher
+- pip (Python package installer)
+
+## Quick Installation
+
+### Option 1: Automated Installation
+Run the provided installation script:
+```bash
+./install_dependencies.sh
+```
+
+### Option 2: Manual Installation
+Install all dependencies using pip:
+```bash
+pip install -r requirements.txt
+```
+
+## What's Included
+The installation includes all necessary packages for:
+- **Jupyter notebooks** for interactive learning
+- **Data science libraries** (pandas, numpy, matplotlib, plotly)
+- **Machine learning** (scikit-learn, scipy)
+- **AI/ML frameworks** (OpenAI, Hugging Face Transformers)
+- **Fine-tuning tools** (PyTorch, PEFT, TRL, Accelerate)
+- **Vector databases and embeddings** support
+
+## Next Steps
+1. Set up your OpenAI API key (see `00_OpenAI API Key Setup/`)
+2. Start with the onramp tutorials in `00_Onramp/`
+3. Explore the embeddings and RAG section in `02_Embeddings_and_RAG/`
 
 # 🏆 **Grading and Certification**
 
