@@ -6,6 +6,8 @@ export default function ChatInterface() {
   const [answer, setAnswer] = useState('');
   const [context, setContext] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [domain, setDomain] = useState('General');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,12 +19,14 @@ export default function ChatInterface() {
     const formData = new FormData();
     const file = fileInputRef.current?.files?.[0];
     const question = (e.target as any).question.value;
-    if (!file || !question) {
+    if (!file || !question || !apiKey) {
       setUploading(false);
       return;
     }
     formData.append('pdf', file);
     formData.append('question', question);
+    formData.append('apiKey', apiKey);
+    formData.append('domain', domain);
 
     const res = await fetch('/api/pdf-rag-chat', {
       method: 'POST',
@@ -37,8 +41,26 @@ export default function ChatInterface() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md flex flex-col gap-4 w-full max-w-xl">
-        <input type="file" accept="application/pdf" ref={fileInputRef} required className="border p-2 rounded" />
-        <input type="text" name="question" placeholder="Ask a question about the PDF..." required className="border p-2 rounded" />
+        <label className="font-semibold text-black">OpenAI API Key
+          <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} required className="border p-2 rounded w-full mt-1 text-black bg-white" placeholder="sk-..." />
+        </label>
+        <label className="font-semibold text-black">Domain
+          <select value={domain} onChange={e => setDomain(e.target.value)} className="border p-2 rounded w-full mt-1 text-black bg-white font-semibold">
+            <option value="General">General</option>
+            <option value="Legal">Legal</option>
+            <option value="Academic">Academic</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Business">Business</option>
+            <option value="Education">Education</option>
+            <option value="Finance">Finance</option>
+          </select>
+        </label>
+        <label className="font-semibold text-black">Upload File (PDF or TXT)
+          <input type="file" accept=".pdf,.txt" ref={fileInputRef} required className="border p-2 rounded w-full mt-1 text-black bg-white" />
+        </label>
+        <label className="font-semibold text-black">Question
+          <input type="text" name="question" placeholder="Ask a question about the file..." required className="border p-2 rounded w-full mt-1 text-black bg-white" />
+        </label>
         <button type="submit" disabled={uploading} className="bg-blue-600 text-white px-4 py-2 rounded-lg">
           {uploading ? 'Processing...' : 'Ask'}
         </button>
