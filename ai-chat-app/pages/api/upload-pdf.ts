@@ -13,6 +13,7 @@ export const config = {
 // In-memory store for demo (doc_id -> { chunks, embeddings })
 const pdfStore: Record<string, { chunks: string[]; embeddings: number[][] }> = {};
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isFormidableFile(file: any): file is { filepath: string } {
   return file && typeof file === 'object' && 'filepath' in file;
 }
@@ -37,6 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (err) {
       return res.status(500).json({ error: 'Error parsing form data', details: String(err) });
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let pdfFile: any;
     if (Array.isArray(files.pdf)) {
       pdfFile = files.pdf[0];
