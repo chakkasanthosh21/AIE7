@@ -18,6 +18,7 @@ export default function ChatInterface() {
 
     const formData = new FormData();
     const file = fileInputRef.current?.files?.[0];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const question = (e.target as any).question.value;
     if (!file || !question || !apiKey) {
       setUploading(false);

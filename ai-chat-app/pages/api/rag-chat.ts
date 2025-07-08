@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 
 // Import or redefine the in-memory store from upload-pdf.ts
 // In a real app, use a shared module or persistent DB
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const globalAny: any = global;
 if (!globalAny.pdfStore) {
   globalAny.pdfStore = {};
