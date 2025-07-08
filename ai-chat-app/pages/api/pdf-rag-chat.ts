@@ -46,6 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!apiKey || typeof apiKey !== 'string') {
       return res.status(400).json({ error: 'No OpenAI API key provided.' });
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let pdfFile: any;
     if (Array.isArray(files.pdf)) {
       pdfFile = files.pdf[0];
