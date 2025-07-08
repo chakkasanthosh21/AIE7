@@ -1,0 +1,108 @@
+
+# AIE7 Project Rules for Cursor AI
+
+## Project Context
+This is the AIE7 (AI Engineering 7) project focused on Retrieval-Augmented Generation (RAG) systems, embeddings, and AI applications.
+
+## Code Style & Standards
+
+### Python
+- Use type hints for all function parameters and return values
+- Follow PEP 8 style guidelines
+- Use f-strings for string formatting
+- Prefer list comprehensions over explicit loops when appropriate
+- Add docstrings to all functions and classes
+- Use meaningful variable names (avoid single letters except for loop counters)
+
+### TypeScript/JavaScript (Next.js)
+- Use TypeScript for all new code
+- Prefer functional components with hooks
+- Use proper TypeScript interfaces and types
+- Follow React best practices
+- Use async/await over .then() chains
+
+### General
+- Write self-documenting code with clear variable names
+- Add comments for complex logic
+- Keep functions small and focused (single responsibility)
+- Use consistent indentation (4 spaces for Python, 2 for TS/JS)
+
+## RAG-Specific Rules
+
+### Vector Database Operations
+- Always handle embedding errors gracefully
+- Use batch operations for large datasets
+- Implement proper error handling for API calls
+- Cache embeddings when possible to avoid redundant API calls
+
+### Document Processing
+- Implement proper text chunking strategies
+- Preserve document metadata during processing
+- Use appropriate distance metrics for vector similarity
+- Handle different document formats (PDF, TXT, etc.)
+
+### API Design
+- Use RESTful conventions for API endpoints
+- Implement proper error responses with status codes
+- Add request/response validation
+- Use environment variables for API keys and configuration
+
+## File Organization
+- Keep related functionality in the same directory
+- Use descriptive file names
+- Separate concerns (data processing, API, UI, etc.)
+- Follow the existing project structure
+
+## Security
+- Never hardcode API keys or sensitive data
+- Use environment variables for configuration
+- Validate all user inputs
+- Implement proper authentication where needed
+
+## Performance
+- Use async operations for I/O-bound tasks
+- Implement caching strategies where appropriate
+- Optimize database queries
+- Use pagination for large datasets
+
+## Testing
+- Write unit tests for critical functions
+- Test edge cases and error conditions
+- Use descriptive test names
+- Mock external dependencies
+
+## Documentation
+- Update README files when adding new features
+- Document API endpoints
+- Include setup instructions for new components
+- Add inline comments for complex algorithms
+
+## AI/ML Best Practices
+- Use appropriate model sizes for the task
+- Implement proper evaluation metrics
+- Handle model loading and caching efficiently
+- Consider model versioning and updates
+
+## Global Development Rules
+
+### Branch Development Workflow
+**You always prefer to use branch development. Before writing any code - you create a feature branch to hold those changes.**
+
+After you are done - provide instructions in a "MERGE.md" file that explains how to merge the changes back to main with both a GitHub PR route and a GitHub CLI route.
+
+### RAG Functionality Integration
+Use Cursor (or your own mind, of course) to include the RAG functionality we discussed last week to allow users to upload PDFs and "chat with them" (interact with a RAG pipeline).
+
+## Git Workflow
+- **ALWAYS create a feature branch before writing any code**
+- Write descriptive commit messages
+- Use feature branches for new development
+- Keep commits atomic and focused
+- Update .gitignore for new file types
+- **After completing work, create a MERGE.md file with merge instructions**
+
+## Environment Setup
+- Use virtual environments for Python dependencies
+- Document all required dependencies
+- Provide clear setup instructions
+- Use consistent dependency versions across environments 
