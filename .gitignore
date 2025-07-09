@@ -1,3 +1,7 @@
 .DS_Store
+<<<<<<< HEAD
 .env
 .vercel
+=======
+.env.venv/
+>>>>>>> s02-assignment
