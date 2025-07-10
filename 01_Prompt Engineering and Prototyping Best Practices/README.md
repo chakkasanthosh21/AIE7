@@ -86,8 +86,4 @@ In essence, it's a first look to ensure your system isn't experiencing catastrop
 
 What are some limitations of vibe checking as an evaluation tool?
 
-<<<<<<< HEAD
-**Answer1** :- Vibe checking is highly informal and subjective, meaning results can vary depending on the evaluator’s expectations and intuition. It doesn’t provide quantitative metrics or systematic coverage of edge cases, which makes it unreliable for detecting subtle errors or measuring model accuracy. It’s useful for quick checks but not sufficient for robust evaluation.
-=======
-**Answer** Vibe checking is highly informal and subjective, meaning results can vary depending on the evaluator’s expectations and intuition. It doesn’t provide quantitative metrics or systematic coverage of edge cases, which makes it unreliable for detecting subtle errors or measuring model accuracy. It’s useful for quick checks but not sufficient for robust evaluation.
->>>>>>> s01-assignment
+**Answer**: Vibe checking is highly informal and subjective, meaning results can vary depending on the evaluator’s expectations and intuition. It doesn’t provide quantitative metrics or systematic coverage of edge cases, which makes it unreliable for detecting subtle errors or measuring model accuracy. It’s useful for quick checks but not sufficient for robust evaluation.
