@@ -1,8 +1,3 @@
-.DS_Store
-<<<<<<< HEAD
-.env
-.vercel
-=======
-.env.venv/
->>>>>>> s02-assignment
 .venv/
+node_modules
+.env.venv/
