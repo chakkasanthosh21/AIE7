@@ -1,3 +1,5 @@
+######### Assignment_Introduction_to_LCEL_and_LangGraph_LangChain_Powered_RAG ###########################################################
+
 ##### 🏗️ Activity #1:
 
 While there's nothing specifically wrong with the chunking method used above - it is a naive approach that is not sensitive to specific data formats.
@@ -38,3 +40,27 @@ Depending on confidence, the graph can either:
 	•	Proceed to response delivery, or
 	•	Ask the user to refine the query or provide disclaimers.
 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+####### LangSmith_and_Evaluation.ipynb ##########################################################################################
+
+#### 🏗️ Activity #1:
+Include a screenshot of your trace and explain what it means. 
+
+####### Answer #1 :
+This trace shows how my LangChain agent processed the input “What is a document loader?” by executing multiple steps—including tool use, vector retrieval, and LLM calls—with a successful output, helping me analyze and debug the flow and performance of my chain.
+
+![Activity 1 Screenshot](Activity_1_screenshot.jpeg)
+
+#### 🏗️ Activity #2:
+
+Complete the prompt so that your RAG application answers queries based on the context provided, but *does not* answer queries if the context is unrelated to the query.
+
+####### Answer #2 : The Answer in "I don't know" because the question asked is not in the context 
+
+
+#### ❓Question #1:
+What conclusions can you draw about the above results?
+Describe in your own words what the metrics are expressing.
+
+##### Answer #1:The trace shows that the RAG system correctly handled the query “What is a document loader?” by invoking a tool to retrieve relevant knowledge from a vector store and then generating a faithful and relevant response based entirely on that context. The assistant used the retrieved documentation snippet to explain what a document loader is and avoided adding hallucinated or unrelated information. This demonstrates that the current setup is working effectively—retrieval is returning accurate documents, the prompt constrains the LLM properly, and the chain logic is behaving as expected.
