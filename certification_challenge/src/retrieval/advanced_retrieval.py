@@ -7,7 +7,7 @@ import os
 from typing import List, Dict, Any, Optional
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
-from langchain.retrievers import BM25Retriever
+from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers.contextual_compression import ContextualCompressionRetriever
 from langchain_cohere import CohereRerank
 from langchain.retrievers.ensemble import EnsembleRetriever
@@ -23,7 +23,7 @@ class AdvancedRetrievalSystem:
                  openai_api_key: Optional[str] = None,
                  cohere_api_key: Optional[str] = None):
         """
-        Initialize the retrieval system.
+        Initialize the advanced retrieval system.
         
         Args:
             openai_api_key: OpenAI API key for embeddings
@@ -33,205 +33,146 @@ class AdvancedRetrievalSystem:
         self.cohere_api_key = cohere_api_key or os.getenv("COHERE_API_KEY")
         
         # Initialize components
-        self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            openai_api_key=self.openai_api_key
-        )
-        
+        self.embeddings = None
         self.vector_store = None
+        self.vector_retriever = None
         self.bm25_retriever = None
         self.ensemble_retriever = None
         self.compression_retriever = None
         
+        # Setup embeddings
+        if self.openai_api_key:
+            self.embeddings = OpenAIEmbeddings(
+                model="text-embedding-3-small",
+                openai_api_key=self.openai_api_key
+            )
+    
     def setup_vector_store(self, documents: List[Document], collection_name: str = "student_loans"):
-        """
-        Set up Qdrant vector store with documents.
+        """Setup Qdrant vector store with documents."""
+        if not self.embeddings:
+            raise ValueError("OpenAI API key required for vector store setup")
         
-        Args:
-            documents: List of documents to index
-            collection_name: Name of the collection
-        """
-        # Initialize Qdrant client
+        # Create Qdrant client
         client = QdrantClient(":memory:")
         
         # Create collection
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=VectorParams(size=1536, distance=Distance.COSINE),
+            vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
         )
         
         # Create vector store
         self.vector_store = QdrantVectorStore(
             client=client,
             collection_name=collection_name,
-            embedding=self.embeddings,
+            embeddings=self.embeddings
         )
         
         # Add documents
-        self.vector_store.add_documents(documents)
-        print(f"Added {len(documents)} documents to vector store")
+        if documents:
+            self.vector_store.add_documents(documents)
         
+        # Create retriever
+        self.vector_retriever = self.vector_store.as_retriever(
+            search_kwargs={"k": 5}
+        )
+    
     def setup_bm25_retriever(self, documents: List[Document]):
-        """
-        Set up BM25 retriever.
-        
-        Args:
-            documents: List of documents for BM25 indexing
-        """
+        """Setup BM25 retriever."""
         self.bm25_retriever = BM25Retriever.from_documents(documents)
-        print("BM25 retriever initialized")
-        
+        self.bm25_retriever.k = 5
+    
     def setup_ensemble_retriever(self, k: int = 5):
-        """
-        Set up ensemble retriever combining vector and BM25.
-        
-        Args:
-            k: Number of documents to retrieve
-        """
-        if not self.vector_store or not self.bm25_retriever:
-            raise ValueError("Vector store and BM25 retriever must be initialized first")
-            
-        vector_retriever = self.vector_store.as_retriever(search_kwargs={"k": k})
+        """Setup ensemble retriever combining vector and BM25."""
+        if not self.vector_retriever or not self.bm25_retriever:
+            raise ValueError("Both vector and BM25 retrievers must be set up first")
         
         self.ensemble_retriever = EnsembleRetriever(
-            retrievers=[vector_retriever, self.bm25_retriever],
+            retrievers=[self.vector_retriever, self.bm25_retriever],
             weights=[0.7, 0.3]
         )
-        print("Ensemble retriever initialized")
-        
+    
     def setup_compression_retriever(self, base_retriever, k: int = 5):
-        """
-        Set up contextual compression retriever with reranking.
-        
-        Args:
-            base_retriever: Base retriever to compress
-            k: Number of documents to retrieve
-        """
+        """Setup contextual compression retriever with Cohere rerank."""
         if not self.cohere_api_key:
-            print("Cohere API key not found, skipping compression retriever")
+            print("Warning: Cohere API key not provided, skipping compression retriever")
             return
-            
-        compressor = CohereRerank(model="rerank-v3.5")
-        self.compression_retriever = ContextualCompressionRetriever(
-            base_compressor=compressor,
-            base_retriever=base_retriever,
-            search_kwargs={"k": k}
-        )
-        print("Compression retriever initialized")
         
+        try:
+            compressor = CohereRerank(
+                cohere_api_key=self.cohere_api_key,
+                model="rerank-v3.5"
+            )
+            
+            self.compression_retriever = ContextualCompressionRetriever(
+                base_compressor=compressor,
+                base_retriever=base_retriever
+            )
+        except Exception as e:
+            print(f"Warning: Failed to setup compression retriever: {e}")
+    
     def retrieve_vector(self, query: str, k: int = 5) -> List[Document]:
-        """
-        Retrieve documents using vector similarity.
-        
-        Args:
-            query: Search query
-            k: Number of documents to retrieve
-            
-        Returns:
-            List of retrieved documents
-        """
-        if not self.vector_store:
-            raise ValueError("Vector store not initialized")
-            
-        retriever = self.vector_store.as_retriever(search_kwargs={"k": k})
-        return retriever.get_relevant_documents(query)
-        
+        """Retrieve documents using vector similarity."""
+        if not self.vector_retriever:
+            return []
+        return self.vector_retriever.get_relevant_documents(query)
+    
     def retrieve_bm25(self, query: str, k: int = 5) -> List[Document]:
-        """
-        Retrieve documents using BM25.
-        
-        Args:
-            query: Search query
-            k: Number of documents to retrieve
-            
-        Returns:
-            List of retrieved documents
-        """
+        """Retrieve documents using BM25."""
         if not self.bm25_retriever:
-            raise ValueError("BM25 retriever not initialized")
-            
+            return []
         return self.bm25_retriever.get_relevant_documents(query)
-        
+    
     def retrieve_ensemble(self, query: str, k: int = 5) -> List[Document]:
-        """
-        Retrieve documents using ensemble method.
-        
-        Args:
-            query: Search query
-            k: Number of documents to retrieve
-            
-        Returns:
-            List of retrieved documents
-        """
+        """Retrieve documents using ensemble method."""
         if not self.ensemble_retriever:
-            raise ValueError("Ensemble retriever not initialized")
-            
+            return []
         return self.ensemble_retriever.get_relevant_documents(query)
-        
+    
     def retrieve_compression(self, query: str, k: int = 5) -> List[Document]:
-        """
-        Retrieve documents using compression with reranking.
-        
-        Args:
-            query: Search query
-            k: Number of documents to retrieve
-            
-        Returns:
-            List of retrieved documents
-        """
+        """Retrieve documents using contextual compression."""
         if not self.compression_retriever:
-            raise ValueError("Compression retriever not initialized")
-            
+            return []
         return self.compression_retriever.get_relevant_documents(query)
-        
-    def compare_retrieval_methods(self, query: str, k: int = 5) -> Dict[str, List[Document]]:
-        """
-        Compare different retrieval methods on the same query.
-        
-        Args:
-            query: Search query
-            k: Number of documents to retrieve
-            
-        Returns:
-            Dictionary with results from each method
-        """
+    
+    def compare_retrieval_methods(self, query: str) -> Dict[str, List[Document]]:
+        """Compare all retrieval methods for a given query."""
         results = {}
         
-        try:
-            results["vector"] = self.retrieve_vector(query, k)
-        except Exception as e:
-            results["vector"] = f"Error: {str(e)}"
-            
-        try:
-            results["bm25"] = self.retrieve_bm25(query, k)
-        except Exception as e:
-            results["bm25"] = f"Error: {str(e)}"
-            
-        try:
-            results["ensemble"] = self.retrieve_ensemble(query, k)
-        except Exception as e:
-            results["ensemble"] = f"Error: {str(e)}"
-            
-        try:
-            results["compression"] = self.retrieve_compression(query, k)
-        except Exception as e:
-            results["compression"] = f"Error: {str(e)}"
-            
+        # Test each method
+        methods = {
+            "vector": self.vector_retriever,
+            "bm25": self.bm25_retriever,
+            "ensemble": self.ensemble_retriever,
+            "compression": self.compression_retriever
+        }
+        
+        for method_name, retriever in methods.items():
+            if retriever:
+                try:
+                    docs = retriever.get_relevant_documents(query)
+                    results[method_name] = docs
+                except Exception as e:
+                    results[method_name] = []
+                    print(f"Error with {method_name}: {e}")
+            else:
+                results[method_name] = []
+        
         return results
-        
+    
     def get_retrieval_summary(self) -> Dict[str, Any]:
-        """
-        Get summary of available retrieval methods.
-        
-        Returns:
-            Dictionary with retrieval method status
-        """
+        """Get summary of available retrieval methods."""
         return {
-            "vector_store": self.vector_store is not None,
-            "bm25_retriever": self.bm25_retriever is not None,
-            "ensemble_retriever": self.ensemble_retriever is not None,
-            "compression_retriever": self.compression_retriever is not None,
-            "cohere_available": bool(self.cohere_api_key)
+            "vector_available": self.vector_retriever is not None,
+            "bm25_available": self.bm25_retriever is not None,
+            "ensemble_available": self.ensemble_retriever is not None,
+            "compression_available": self.compression_retriever is not None,
+            "total_methods": sum([
+                self.vector_retriever is not None,
+                self.bm25_retriever is not None,
+                self.ensemble_retriever is not None,
+                self.compression_retriever is not None
+            ])
         }
 
 
