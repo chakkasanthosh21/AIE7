@@ -36,14 +36,54 @@ The system will help students, financial aid officers, and administrators naviga
 
 ## 🚀 Quick Start
 
-### Option 1: Web UI (Recommended)
+### Option 1: Docker Deployment (Recommended)
+
+**Prerequisites:**
+- [Docker](https://docs.docker.com/get-docker/) installed
+- [Docker Compose](https://docs.docker.com/compose/install/) installed
+- OpenAI API key (required)
+- Cohere API key (optional)
+
+**Steps:**
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd AIE7/certification_challenge
+
+# Make the Docker runner executable
+chmod +x run_docker.sh
+
+# Run the Docker setup script
+./run_docker.sh
+```
+
+The script will:
+- Create a `.env` file template
+- Check for required dependencies
+- Copy necessary data files
+- Build and start the Docker container
+
+**Access the app:** http://localhost:8501
+
+**For detailed Docker instructions:** See [DOCKER_README.md](DOCKER_README.md)
+
+### Option 2: Local Development
 
 1. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Launch the web interface**:
+2. **Set up environment variables**:
+   ```bash
+   # Copy the template
+   cp env.template .env
+   
+   # Edit .env with your API keys
+   nano .env
+   ```
+
+3. **Launch the web interface**:
    ```bash
    python run_ui.py
    ```
@@ -53,11 +93,9 @@ The system will help students, financial aid officers, and administrators naviga
    streamlit run app.py
    ```
 
-3. **Open your browser** to `http://localhost:8501`
+4. **Open your browser** to `http://localhost:8501`
 
-4. **Start asking questions** about student loans!
-
-### Option 2: Command Line
+### Option 3: Command Line
 
 1. **Run the main system**:
    ```bash
@@ -96,7 +134,15 @@ certification_challenge/
 ├── README.md
 ├── requirements.txt
 ├── app.py                          # Streamlit web interface
+├── simple_app.py                   # Simplified demo version
 ├── run_ui.py                       # UI launcher script
+├── run_docker.sh                   # Docker launcher script
+├── Dockerfile                      # Docker container definition
+├── docker-compose.yml              # Docker Compose configuration
+├── .dockerignore                   # Docker ignore file
+├── env.template                    # Environment template
+├── DOCKER_README.md                # Docker deployment guide
+├── ASSIGNMENT_SUBMISSION.md        # Session 11 assignment answers
 ├── src/
 │   ├── __init__.py
 │   ├── main.py                     # Main system integration
@@ -188,6 +234,9 @@ python run_ui.py
 # Test the command line system
 python src/main.py
 
+# Test Docker deployment
+./run_docker.sh
+
 # Test individual components
 python -c "
 from src.main import StudentLoanAssistant
@@ -205,6 +254,32 @@ print('Initialization:', result['status'])
 - ✅ Error handling and recovery
 - ✅ Web interface functionality
 - ✅ User interaction and response generation
+- ✅ Docker container deployment
+
+## 🐳 Docker Deployment
+
+### Quick Docker Start
+```bash
+# One-command deployment
+./run_docker.sh
+```
+
+### Manual Docker Commands
+```bash
+# Build and start
+docker-compose up --build -d
+
+# View logs
+docker-compose logs -f
+
+# Stop application
+docker-compose down
+
+# Check status
+docker-compose ps
+```
+
+**For complete Docker instructions:** See [DOCKER_README.md](DOCKER_README.md)
 
 ## 🎉 Demo Day Ready
 
@@ -215,6 +290,7 @@ The system is ready for:
 - **Technical architecture** overview
 - **Web interface** demonstration
 - **User interaction** showcase
+- **Docker deployment** showcase
 
 ## Next Steps
 
@@ -225,10 +301,11 @@ The system is ready for:
 5. Implement comprehensive evaluation ✅
 6. Deploy and monitor system ✅
 7. Create user-friendly web interface ✅
-8. Prepare Demo Day presentation ✅
+8. Dockerize application ✅
+9. Prepare Demo Day presentation ✅
 
 ---
 
 **Ready for certification review and Demo Day presentation! 🚀**
 
-This implementation demonstrates mastery of AI Engineering concepts including RAG, multi-agent systems, advanced retrieval, comprehensive evaluation, production deployment, and user interface design. 
+This implementation demonstrates mastery of AI Engineering concepts including RAG, multi-agent systems, advanced retrieval, comprehensive evaluation, production deployment, user interface design, and containerization. 
