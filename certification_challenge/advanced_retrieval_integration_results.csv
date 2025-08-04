@@ -1,0 +1,6 @@
+Technique,Success Rate,Avg Response Time (s),Total Queries,Successful Queries
+Baseline Retrieval,0.000,1.47,10,0
+Hybrid Search,0.000,1.41,10,0
+Cohere Reranking,0.000,1.48,10,0
+Multi-Query Generation,1.000,5.95,5,5
+Contextual Compression,0.000,1.56,10,0

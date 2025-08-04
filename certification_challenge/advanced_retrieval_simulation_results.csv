@@ -1,0 +1,6 @@
+Technique,F1 Score,Success Rate,Precision,Recall,Response Time (s)
+Hybrid Search,0.879,0.950,0.891,0.867,1.2
+Cohere Reranking,0.882,0.920,0.923,0.845,1.8
+Multi-Query Generation,0.883,0.980,0.856,0.912,2.1
+Contextual Compression,0.856,0.890,0.834,0.878,0.9
+Hierarchical Retrieval,0.884,0.940,0.867,0.901,1.5

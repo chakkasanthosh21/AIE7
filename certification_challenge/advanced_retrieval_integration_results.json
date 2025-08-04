@@ -1,0 +1,395 @@
+{
+  "baseline": {
+    "technique": "Baseline Retrieval",
+    "description": "Standard vector search with OpenAI embeddings",
+    "performance": {
+      "success_rate": 0.0,
+      "avg_response_time": 1.4703381061553955,
+      "total_queries": 10,
+      "successful_queries": 0
+    },
+    "results": [
+      {
+        "query": "What are the eligibility requirements for federal student loans?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "Am I eligible for Pell Grants?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "Can I get federal loans if I have bad credit?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "What is the maximum income for Pell Grant eligibility?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "Do I need to be enrolled full-time to get federal loans?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "How do I apply for federal student loans?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "What is the FAFSA deadline?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "What documents do I need for loan verification?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "How do I complete the FAFSA form?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "What happens after I submit my FAFSA?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      }
+    ]
+  },
+  "hybrid_search": {
+    "technique": "Hybrid Search",
+    "description": "Combines semantic embeddings with keyword enhancement",
+    "performance": {
+      "success_rate": 0.0,
+      "avg_response_time": 1.4071605920791626,
+      "total_queries": 10,
+      "successful_queries": 0
+    },
+    "results": [
+      {
+        "query": "What are the eligibility requirements for federal student loans?",
+        "enhanced_query": "What are the eligibility requirements for federal student loans? [federal student loan eligibility requirements]",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "Am I eligible for Pell Grants?",
+        "enhanced_query": "Am I eligible for Pell Grants? [federal student loan eligibility requirements]",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "Can I get federal loans if I have bad credit?",
+        "enhanced_query": "Can I get federal loans if I have bad credit? [federal student loan eligibility requirements]",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "What is the maximum income for Pell Grant eligibility?",
+        "enhanced_query": "What is the maximum income for Pell Grant eligibility? [federal student loan eligibility requirements]",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "Do I need to be enrolled full-time to get federal loans?",
+        "enhanced_query": "Do I need to be enrolled full-time to get federal loans? [federal student loan eligibility requirements]",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "How do I apply for federal student loans?",
+        "enhanced_query": "How do I apply for federal student loans? [federal student loan eligibility requirements]",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "What is the FAFSA deadline?",
+        "enhanced_query": "What is the FAFSA deadline? [federal student loan eligibility requirements]",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "What documents do I need for loan verification?",
+        "enhanced_query": "What documents do I need for loan verification? [federal student loan eligibility requirements]",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "How do I complete the FAFSA form?",
+        "enhanced_query": "How do I complete the FAFSA form? [federal student loan eligibility requirements]",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      },
+      {
+        "query": "What happens after I submit my FAFSA?",
+        "enhanced_query": "What happens after I submit my FAFSA? [federal student loan eligibility requirements]",
+        "response": "No response",
+        "status": "error",
+        "metadata": {}
+      }
+    ]
+  },
+  "reranking": {
+    "technique": "Cohere Reranking",
+    "description": "Reorders retrieved documents for improved relevance",
+    "performance": {
+      "success_rate": 0.0,
+      "avg_response_time": 1.4815212965011597,
+      "total_queries": 10,
+      "successful_queries": 0,
+      "reranking_enabled": false
+    },
+    "results": [
+      {
+        "query": "What are the eligibility requirements for federal student loans?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {},
+        "reranking_applied": false
+      },
+      {
+        "query": "Am I eligible for Pell Grants?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {},
+        "reranking_applied": false
+      },
+      {
+        "query": "Can I get federal loans if I have bad credit?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {},
+        "reranking_applied": false
+      },
+      {
+        "query": "What is the maximum income for Pell Grant eligibility?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {},
+        "reranking_applied": false
+      },
+      {
+        "query": "Do I need to be enrolled full-time to get federal loans?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {},
+        "reranking_applied": false
+      },
+      {
+        "query": "How do I apply for federal student loans?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {},
+        "reranking_applied": false
+      },
+      {
+        "query": "What is the FAFSA deadline?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {},
+        "reranking_applied": false
+      },
+      {
+        "query": "What documents do I need for loan verification?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {},
+        "reranking_applied": false
+      },
+      {
+        "query": "How do I complete the FAFSA form?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {},
+        "reranking_applied": false
+      },
+      {
+        "query": "What happens after I submit my FAFSA?",
+        "response": "No response",
+        "status": "error",
+        "metadata": {},
+        "reranking_applied": false
+      }
+    ]
+  },
+  "multi_query": {
+    "technique": "Multi-Query Generation",
+    "description": "Expands complex queries into multiple related queries",
+    "performance": {
+      "success_rate": 1.0,
+      "avg_response_time": 5.9469640254974365,
+      "total_queries": 5,
+      "successful_queries": 5,
+      "avg_expansions": 4.0
+    },
+    "results": [
+      {
+        "original_query": "What are my options for student loan repayment?",
+        "expanded_queries": [
+          "What are income-driven repayment plans?",
+          "How do I consolidate my student loans?",
+          "What happens if I can't make payments?",
+          "What are the different repayment options?"
+        ],
+        "combined_response": "No response",
+        "status": "success",
+        "num_expanded_queries": 4
+      },
+      {
+        "original_query": "How do I apply for federal student loans and what documents do I need?",
+        "expanded_queries": [
+          "How do I complete the FAFSA?",
+          "What documents do I need for verification?",
+          "What are the FAFSA deadlines?",
+          "How do I accept my loan offer?"
+        ],
+        "combined_response": "No response",
+        "status": "success",
+        "num_expanded_queries": 4
+      },
+      {
+        "original_query": "What are the differences between subsidized and unsubsidized loans?",
+        "expanded_queries": [
+          "What are Direct Subsidized Loans?",
+          "What are Direct Unsubsidized Loans?",
+          "What are PLUS Loans?",
+          "What are the loan limits?"
+        ],
+        "combined_response": "No response",
+        "status": "success",
+        "num_expanded_queries": 4
+      },
+      {
+        "original_query": "I'm struggling with my loans, what help is available?",
+        "expanded_queries": [
+          "What is loan forgiveness?",
+          "What is deferment and forbearance?",
+          "What is Public Service Loan Forgiveness?",
+          "What are my rights as a borrower?"
+        ],
+        "combined_response": "No response",
+        "status": "success",
+        "num_expanded_queries": 4
+      },
+      {
+        "original_query": "What are the current interest rates and forgiveness programs?",
+        "expanded_queries": [
+          "What are current federal loan interest rates?",
+          "How do interest rates work?",
+          "What is loan forgiveness?",
+          "What are the latest policy changes?"
+        ],
+        "combined_response": "No response",
+        "status": "success",
+        "num_expanded_queries": 4
+      }
+    ]
+  },
+  "compression": {
+    "technique": "Contextual Compression",
+    "description": "Summarizes documents while preserving key information",
+    "performance": {
+      "success_rate": 0.0,
+      "avg_response_time": 1.5566890716552735,
+      "avg_response_length": 0.0,
+      "total_queries": 10,
+      "successful_queries": 0
+    },
+    "results": [
+      {
+        "query": "What are the eligibility requirements for federal student loans?",
+        "compressed_query": "Summarize key points: What are the eligibility requirements for federal student loans?",
+        "response": "",
+        "response_length": 0,
+        "status": "error"
+      },
+      {
+        "query": "Am I eligible for Pell Grants?",
+        "compressed_query": "Summarize key points: Am I eligible for Pell Grants?",
+        "response": "",
+        "response_length": 0,
+        "status": "error"
+      },
+      {
+        "query": "Can I get federal loans if I have bad credit?",
+        "compressed_query": "Summarize key points: Can I get federal loans if I have bad credit?",
+        "response": "",
+        "response_length": 0,
+        "status": "error"
+      },
+      {
+        "query": "What is the maximum income for Pell Grant eligibility?",
+        "compressed_query": "Summarize key points: What is the maximum income for Pell Grant eligibility?",
+        "response": "",
+        "response_length": 0,
+        "status": "error"
+      },
+      {
+        "query": "Do I need to be enrolled full-time to get federal loans?",
+        "compressed_query": "Summarize key points: Do I need to be enrolled full-time to get federal loans?",
+        "response": "",
+        "response_length": 0,
+        "status": "error"
+      },
+      {
+        "query": "How do I apply for federal student loans?",
+        "compressed_query": "Summarize key points: How do I apply for federal student loans?",
+        "response": "",
+        "response_length": 0,
+        "status": "error"
+      },
+      {
+        "query": "What is the FAFSA deadline?",
+        "compressed_query": "Summarize key points: What is the FAFSA deadline?",
+        "response": "",
+        "response_length": 0,
+        "status": "error"
+      },
+      {
+        "query": "What documents do I need for loan verification?",
+        "compressed_query": "Summarize key points: What documents do I need for loan verification?",
+        "response": "",
+        "response_length": 0,
+        "status": "error"
+      },
+      {
+        "query": "How do I complete the FAFSA form?",
+        "compressed_query": "Summarize key points: How do I complete the FAFSA form?",
+        "response": "",
+        "response_length": 0,
+        "status": "error"
+      },
+      {
+        "query": "What happens after I submit my FAFSA?",
+        "compressed_query": "Summarize key points: What happens after I submit my FAFSA?",
+        "response": "",
+        "response_length": 0,
+        "status": "error"
+      }
+    ]
+  }
+}

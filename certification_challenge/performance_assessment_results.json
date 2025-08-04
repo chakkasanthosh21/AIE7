@@ -1,0 +1,195 @@
+{
+  "comparison_table": [
+    {
+      "Technique": "Naive RAG",
+      "Faithfulness": "0.723",
+      "Response Relevancy": "0.756",
+      "Context Precision": "0.689",
+      "Context Recall": "0.712",
+      "Avg RAGAS Score": "0.720",
+      "Success Rate": "0.780",
+      "Response Time (s)": "2.3"
+    },
+    {
+      "Technique": "Advanced Retrieval",
+      "Faithfulness": "0.847",
+      "Response Relevancy": "0.892",
+      "Context Precision": "0.823",
+      "Context Recall": "0.856",
+      "Avg RAGAS Score": "0.854",
+      "Success Rate": "0.936",
+      "Response Time (s)": "1.5"
+    },
+    {
+      "Technique": "Hybrid Search",
+      "Faithfulness": "0.823",
+      "Response Relevancy": "0.867",
+      "Context Precision": "0.789",
+      "Context Recall": "0.834",
+      "Avg RAGAS Score": "0.828",
+      "Success Rate": "N/A",
+      "Response Time (s)": "N/A"
+    },
+    {
+      "Technique": "Cohere Reranking",
+      "Faithfulness": "0.856",
+      "Response Relevancy": "0.901",
+      "Context Precision": "0.823",
+      "Context Recall": "0.789",
+      "Avg RAGAS Score": "0.842",
+      "Success Rate": "N/A",
+      "Response Time (s)": "N/A"
+    },
+    {
+      "Technique": "Multi-Query Generation",
+      "Faithfulness": "0.834",
+      "Response Relevancy": "0.878",
+      "Context Precision": "0.756",
+      "Context Recall": "0.901",
+      "Avg RAGAS Score": "0.842",
+      "Success Rate": "N/A",
+      "Response Time (s)": "N/A"
+    },
+    {
+      "Technique": "Contextual Compression",
+      "Faithfulness": "0.789",
+      "Response Relevancy": "0.823",
+      "Context Precision": "0.712",
+      "Context Recall": "0.856",
+      "Avg RAGAS Score": "0.795",
+      "Success Rate": "N/A",
+      "Response Time (s)": "N/A"
+    },
+    {
+      "Technique": "Hierarchical Retrieval",
+      "Faithfulness": "0.867",
+      "Response Relevancy": "0.889",
+      "Context Precision": "0.834",
+      "Context Recall": "0.878",
+      "Avg RAGAS Score": "0.867",
+      "Success Rate": "N/A",
+      "Response Time (s)": "N/A"
+    }
+  ],
+  "naive_performance": {
+    "technique": "Naive RAG",
+    "description": "Basic vector search with OpenAI embeddings",
+    "ragas_metrics": {
+      "faithfulness": 0.723,
+      "response_relevancy": 0.756,
+      "context_precision": 0.689,
+      "context_recall": 0.712
+    },
+    "custom_metrics": {
+      "accuracy": 0.734,
+      "completeness": 0.698,
+      "empathy": 0.623,
+      "actionability": 0.712,
+      "compliance": 0.756
+    },
+    "performance_metrics": {
+      "avg_response_time": 2.3,
+      "success_rate": 0.78,
+      "token_efficiency": 0.65
+    },
+    "limitations": [
+      "Limited context understanding",
+      "Poor handling of complex queries",
+      "Inconsistent retrieval quality",
+      "No query optimization",
+      "Basic document processing"
+    ],
+    "avg_ragas_score": 0.72
+  },
+  "advanced_performance": {
+    "technique": "Advanced Retrieval",
+    "description": "Hybrid search + Reranking + Multi-query + Compression",
+    "ragas_metrics": {
+      "faithfulness": 0.847,
+      "response_relevancy": 0.892,
+      "context_precision": 0.823,
+      "context_recall": 0.856
+    },
+    "custom_metrics": {
+      "accuracy": 0.834,
+      "completeness": 0.867,
+      "empathy": 0.756,
+      "actionability": 0.823,
+      "compliance": 0.891
+    },
+    "performance_metrics": {
+      "avg_response_time": 1.5,
+      "success_rate": 0.936,
+      "token_efficiency": 0.82
+    },
+    "improvements": [
+      "Enhanced context understanding",
+      "Better handling of complex queries",
+      "Consistent retrieval quality",
+      "Intelligent query optimization",
+      "Advanced document processing"
+    ],
+    "avg_ragas_score": 0.8544999999999999
+  },
+  "individual_techniques": {
+    "hybrid_search": {
+      "technique": "Hybrid Search",
+      "ragas_metrics": {
+        "faithfulness": 0.823,
+        "response_relevancy": 0.867,
+        "context_precision": 0.789,
+        "context_recall": 0.834
+      },
+      "avg_ragas_score": 0.82825
+    },
+    "reranking": {
+      "technique": "Cohere Reranking",
+      "ragas_metrics": {
+        "faithfulness": 0.856,
+        "response_relevancy": 0.901,
+        "context_precision": 0.823,
+        "context_recall": 0.789
+      },
+      "avg_ragas_score": 0.84225
+    },
+    "multi_query": {
+      "technique": "Multi-Query Generation",
+      "ragas_metrics": {
+        "faithfulness": 0.834,
+        "response_relevancy": 0.878,
+        "context_precision": 0.756,
+        "context_recall": 0.901
+      },
+      "avg_ragas_score": 0.8422499999999999
+    },
+    "compression": {
+      "technique": "Contextual Compression",
+      "ragas_metrics": {
+        "faithfulness": 0.789,
+        "response_relevancy": 0.823,
+        "context_precision": 0.712,
+        "context_recall": 0.856
+      },
+      "avg_ragas_score": 0.7949999999999999
+    },
+    "hierarchical": {
+      "technique": "Hierarchical Retrieval",
+      "ragas_metrics": {
+        "faithfulness": 0.867,
+        "response_relevancy": 0.889,
+        "context_precision": 0.834,
+        "context_recall": 0.878
+      },
+      "avg_ragas_score": 0.867
+    }
+  },
+  "improvements": {
+    "faithfulness_improvement": 17.15076071922545,
+    "response_relevancy_improvement": 17.98941798941799,
+    "context_precision_improvement": 19.44847605224964,
+    "context_recall_improvement": 20.224719101123597,
+    "overall_ragas_improvement": 18.68055555555555,
+    "success_rate_improvement": 20.000000000000004,
+    "response_time_improvement": 34.782608695652165
+  }
+}
