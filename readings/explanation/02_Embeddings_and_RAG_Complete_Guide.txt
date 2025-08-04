@@ -1,7 +1,8 @@
 🔍 COMPLETE EMBEDDINGS AND RAG GUIDE
 ====================================
 
-Retrieval Augmented Generation (RAG) is a powerful technique that combines Large Language Models (LLMs) with external knowledge bases to provide more accurate, up-to-date, and contextually relevant responses. This guide covers everything from basic embeddings to building production-ready RAG systems.
+Retrieval Augmented Generation (RAG) is a powerful technique that combines Large Language Models (LLMs) with external knowledge 
+bases to provide more accurate, up-to-date, and contextually relevant responses. This guide covers everything from basic embeddings to building production-ready RAG systems.
 
 📋 TABLE OF CONTENTS
 ====================
@@ -19,7 +20,8 @@ Retrieval Augmented Generation (RAG) is a powerful technique that combines Large
 ==========================
 
 Definition:
-Embeddings are numerical representations of text (or other data) that capture semantic meaning. They convert words, sentences, or documents into vectors (lists of numbers) that can be compared mathematically.
+Embeddings are numerical representations of text (or other data) that capture semantic meaning. 
+They convert words, sentences, or documents into vectors (lists of numbers) that can be compared mathematically.
 
 Key Concepts:
 • Semantic Similarity - Similar meanings have similar vectors
