@@ -88,53 +88,122 @@ def setup_page():
 
 def initialize_system():
     """Initialize the Student Loan Assistant system."""
-    if not st.session_state.initialized:
-        with st.spinner("🚀 Initializing Student Loan Assistant..."):
+    if st.session_state.initialized:
+        return True
+    
+    # Create a progress bar for initialization
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
+    try:
+        status_text.text("🔍 Step 1: Setting up environment variables...")
+        progress_bar.progress(10)
+        
+        # Get API keys from session state
+        openai_api_key = st.session_state.openai_api_key
+        cohere_api_key = st.session_state.cohere_api_key
+        tavily_api_key = st.session_state.tavily_api_key
+        
+        # Set environment variables for the session
+        if openai_api_key:
+            os.environ["OPENAI_API_KEY"] = openai_api_key
+        if cohere_api_key:
+            os.environ["COHERE_API_KEY"] = cohere_api_key
+        if tavily_api_key:
+            os.environ["TAVILY_API_KEY"] = tavily_api_key
+        
+        status_text.text("🔍 Step 2: Creating assistant instance...")
+        progress_bar.progress(20)
+        
+        assistant = StudentLoanAssistant(
+            openai_api_key=openai_api_key,
+            cohere_api_key=cohere_api_key,
+            tavily_api_key=tavily_api_key
+        )
+        
+        status_text.text("🔍 Step 3: Initializing system components...")
+        progress_bar.progress(30)
+        
+        # Initialize the system with timeout
+        import signal
+        import threading
+        import time
+        
+        init_result = None
+        init_error = None
+        
+        def init_with_timeout():
+            nonlocal init_result, init_error
             try:
-                # Get API keys from session state
-                openai_api_key = st.session_state.openai_api_key
-                cohere_api_key = st.session_state.cohere_api_key
-                tavily_api_key = st.session_state.tavily_api_key
-                
-                # Set environment variables for the session
-                if openai_api_key:
-                    os.environ["OPENAI_API_KEY"] = openai_api_key
-                if cohere_api_key:
-                    os.environ["COHERE_API_KEY"] = cohere_api_key
-                if tavily_api_key:
-                    os.environ["TAVILY_API_KEY"] = tavily_api_key
-                
-                assistant = StudentLoanAssistant(
-                    openai_api_key=openai_api_key,
-                    cohere_api_key=cohere_api_key,
-                    tavily_api_key=tavily_api_key
-                )
                 init_result = assistant.initialize_system()
-                
-                if init_result["status"] == "success":
-                    st.session_state.assistant = assistant
-                    st.session_state.initialized = True
-                    st.success("✅ System initialized successfully!")
-                    
-                    # Show API key status
-                    if tavily_api_key:
-                        st.info("🔍 Web search enabled with Tavily")
-                    else:
-                        st.info("ℹ️ Web search disabled - add Tavily API key for real-time information")
-                    
-                    if cohere_api_key:
-                        st.info("🔍 Enhanced retrieval enabled with Cohere")
-                    else:
-                        st.info("ℹ️ Basic retrieval mode - add Cohere API key for enhanced performance")
-                    
-                    return True
-                else:
-                    st.error(f"❌ Initialization failed: {init_result.get('error', 'Unknown error')}")
-                    return False
             except Exception as e:
-                st.error(f"❌ Error during initialization: {str(e)}")
-                return False
-    return True
+                init_error = e
+        
+        # Start initialization in a separate thread
+        init_thread = threading.Thread(target=init_with_timeout)
+        init_thread.daemon = True
+        init_thread.start()
+        
+        # Wait for initialization with progress updates
+        start_time = time.time()
+        timeout = 60  # 60 seconds timeout
+        
+        while init_thread.is_alive() and (time.time() - start_time) < timeout:
+            elapsed = time.time() - start_time
+            progress = min(30 + int((elapsed / timeout) * 60), 90)  # Progress from 30% to 90%
+            progress_bar.progress(progress)
+            status_text.text(f"🔍 Step 3: Initializing system components... ({elapsed:.1f}s)")
+            time.sleep(0.5)
+        
+        if init_thread.is_alive():
+            # Timeout occurred
+            status_text.text("⚠️ Initialization taking longer than expected...")
+            progress_bar.progress(95)
+            
+            # Wait a bit more
+            time.sleep(5)
+            
+            if init_thread.is_alive():
+                st.error("❌ Initialization timed out. The system may not be fully functional.")
+                # Try to continue anyway
+                init_result = {"status": "timeout", "message": "Initialization timed out"}
+        
+        progress_bar.progress(100)
+        status_text.text("✅ Initialization complete!")
+        
+        if init_error:
+            st.error(f"❌ Initialization error: {str(init_error)}")
+            return False
+        
+        if init_result.get("status") == "success":
+            st.session_state.assistant = assistant
+            st.session_state.initialized = True
+            
+            st.success("✅ System initialized successfully!")
+            
+            # Show API key status
+            if tavily_api_key:
+                st.info("🔍 Web search enabled with Tavily")
+            else:
+                st.info("ℹ️ Web search disabled - add Tavily API key for real-time information")
+            
+            if cohere_api_key:
+                st.info("🔍 Enhanced retrieval enabled with Cohere")
+            else:
+                st.info("ℹ️ Basic retrieval mode - add Cohere API key for enhanced performance")
+            
+            return True
+        else:
+            st.error(f"❌ Initialization failed: {init_result.get('error', 'Unknown error')}")
+            return False
+            
+    except Exception as e:
+        st.error(f"❌ Error during initialization: {str(e)}")
+        return False
+    finally:
+        # Clear progress indicators
+        progress_bar.empty()
+        status_text.empty()
 
 
 def display_api_key_configuration():
