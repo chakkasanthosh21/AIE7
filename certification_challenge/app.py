@@ -29,6 +29,14 @@ def initialize_session_state():
         st.session_state.chat_history = []
     if 'evaluation_results' not in st.session_state:
         st.session_state.evaluation_results = None
+    if 'api_keys_configured' not in st.session_state:
+        st.session_state.api_keys_configured = False
+    if 'openai_api_key' not in st.session_state:
+        st.session_state.openai_api_key = ""
+    if 'cohere_api_key' not in st.session_state:
+        st.session_state.cohere_api_key = ""
+    if 'tavily_api_key' not in st.session_state:
+        st.session_state.tavily_api_key = ""
 
 
 def setup_page():
@@ -83,10 +91,18 @@ def initialize_system():
     if not st.session_state.initialized:
         with st.spinner("🚀 Initializing Student Loan Assistant..."):
             try:
-                # Get API keys from environment
-                openai_api_key = os.getenv("OPENAI_API_KEY")
-                cohere_api_key = os.getenv("COHERE_API_KEY")
-                tavily_api_key = os.getenv("TAVILY_API_KEY")
+                # Get API keys from session state
+                openai_api_key = st.session_state.openai_api_key
+                cohere_api_key = st.session_state.cohere_api_key
+                tavily_api_key = st.session_state.tavily_api_key
+                
+                # Set environment variables for the session
+                if openai_api_key:
+                    os.environ["OPENAI_API_KEY"] = openai_api_key
+                if cohere_api_key:
+                    os.environ["COHERE_API_KEY"] = cohere_api_key
+                if tavily_api_key:
+                    os.environ["TAVILY_API_KEY"] = tavily_api_key
                 
                 assistant = StudentLoanAssistant(
                     openai_api_key=openai_api_key,
@@ -100,11 +116,16 @@ def initialize_system():
                     st.session_state.initialized = True
                     st.success("✅ System initialized successfully!")
                     
-                    # Show Tavily status
+                    # Show API key status
                     if tavily_api_key:
                         st.info("🔍 Web search enabled with Tavily")
                     else:
-                        st.warning("⚠️ Web search disabled - TAVILY_API_KEY not configured")
+                        st.info("ℹ️ Web search disabled - add Tavily API key for real-time information")
+                    
+                    if cohere_api_key:
+                        st.info("🔍 Enhanced retrieval enabled with Cohere")
+                    else:
+                        st.info("ℹ️ Basic retrieval mode - add Cohere API key for enhanced performance")
                     
                     return True
                 else:
@@ -114,6 +135,65 @@ def initialize_system():
                 st.error(f"❌ Error during initialization: {str(e)}")
                 return False
     return True
+
+
+def display_api_key_configuration():
+    """Display API key configuration interface."""
+    st.markdown('<h2 class="sub-header">🔑 API Key Configuration</h2>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    To use the Student Loan Assistant, you need to configure your API keys. 
+    These keys are stored securely in your browser session and are not saved to any server.
+    """)
+    
+    with st.form("api_key_form"):
+        st.markdown("#### Required API Keys")
+        
+        # OpenAI API Key (Required)
+        openai_key = st.text_input(
+            "OpenAI API Key *",
+            value=st.session_state.openai_api_key,
+            type="password",
+            help="Get your API key from https://platform.openai.com/api-keys"
+        )
+        
+        st.markdown("#### Optional API Keys")
+        
+        # Cohere API Key (Optional)
+        cohere_key = st.text_input(
+            "Cohere API Key",
+            value=st.session_state.cohere_api_key,
+            type="password",
+            help="Get your API key from https://dashboard.cohere.ai/api-keys (optional, for enhanced retrieval)"
+        )
+        
+        # Tavily API Key (Optional)
+        tavily_key = st.text_input(
+            "Tavily API Key",
+            value=st.session_state.tavily_api_key,
+            type="password",
+            help="Get your API key from https://tavily.com/ (optional, for real-time web search)"
+        )
+        
+        # Submit button
+        submit_button = st.form_submit_button("🚀 Configure and Initialize System", type="primary")
+        
+        if submit_button:
+            if not openai_key.strip():
+                st.error("❌ OpenAI API Key is required!")
+                return False
+            
+            # Store API keys in session state
+            st.session_state.openai_api_key = openai_key.strip()
+            st.session_state.cohere_api_key = cohere_key.strip()
+            st.session_state.tavily_api_key = tavily_key.strip()
+            st.session_state.api_keys_configured = True
+            
+            st.success("✅ API keys configured successfully!")
+            st.info("🔄 Initializing system with your API keys...")
+            return True
+    
+    return False
 
 
 def display_header():
@@ -154,6 +234,12 @@ def display_sidebar():
         st.markdown("### ⚡ Quick Actions")
         
         if st.button("🔄 Reinitialize System"):
+            st.session_state.initialized = False
+            st.session_state.assistant = None
+            st.rerun()
+        
+        if st.button("🔑 Reconfigure API Keys"):
+            st.session_state.api_keys_configured = False
             st.session_state.initialized = False
             st.session_state.assistant = None
             st.rerun()
@@ -467,15 +553,20 @@ def main():
     setup_page()
     initialize_session_state()
     
-    # Initialize system
+    # Display header
+    display_header()
+    
+    # Check if API keys are configured
+    if not st.session_state.api_keys_configured:
+        display_api_key_configuration()
+        return
+    
+    # Initialize system if not already done
     if not st.session_state.initialized:
         if initialize_system():
             st.rerun()
         else:
             st.stop()
-    
-    # Display header
-    display_header()
     
     # Display sidebar
     display_sidebar()

@@ -241,10 +241,10 @@ print('Initialization:', result['status'])
 
 This implementation demonstrates mastery of AI Engineering concepts and is ready for certification review and Demo Day presentation. 
 
-# Merge Instructions: Tavily Integration Feature
+# Merge Instructions: Tavily Integration + API Key UI Feature
 
 ## Feature Overview
-This feature adds Tavily web search capabilities to the Student Loan Assistant, enabling real-time information retrieval to enhance responses with current, up-to-date information beyond the static documentation.
+This feature adds Tavily web search capabilities to the Student Loan Assistant and implements a user-friendly API key configuration interface, enabling real-time information retrieval and allowing any user to easily configure and use the app with their own API keys.
 
 ## Changes Made
 
@@ -259,7 +259,7 @@ This feature adds Tavily web search capabilities to the Student Loan Assistant, 
 - `src/agents/research_agent.py` - Integrated Tavily search agent
 - `src/agents/supervisor_agent.py` - Added web search metadata tracking
 - `src/main.py` - Added Tavily API key support
-- `app.py` - Enhanced UI to show web search status and results
+- `app.py` - Enhanced UI to show web search status and results, added API key configuration interface
 
 ## Key Features Added
 
@@ -282,6 +282,12 @@ This feature adds Tavily web search capabilities to the Student Loan Assistant, 
 - Clear warnings when web search is not configured
 - Fallback to document-only responses
 
+### 🔑 User-Friendly API Key Configuration
+- Interactive UI for entering API keys securely
+- Session-based storage (not saved to server)
+- Support for required (OpenAI) and optional (Cohere, Tavily) API keys
+- Easy reconfiguration option in sidebar
+
 ## Testing the Feature
 
 ### 1. Set up Tavily API Key
@@ -300,6 +306,8 @@ Try these queries that should trigger web search:
 - Check that web search status is shown in the sidebar
 - Verify that response details show web search usage
 - Confirm web sources are displayed in the UI
+- Test API key configuration interface
+- Verify session-based API key storage
 
 ## Merge Instructions
 
