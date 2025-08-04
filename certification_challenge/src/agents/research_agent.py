@@ -1,12 +1,13 @@
 """
 Research agent for student loan assistant.
-Retrieves relevant information from loan documentation.
+Retrieves relevant information from loan documentation and web search.
 """
 
 from typing import List, Dict, Any
 from langchain_core.documents import Document
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
+from .tavily_search_agent import TavilySearchAgent
 
 
 class ResearchAgent:
@@ -22,6 +23,7 @@ class ResearchAgent:
         """
         self.retriever = retriever
         self.llm = ChatOpenAI(model=llm_model)
+        self.tavily_agent = TavilySearchAgent(llm_model=llm_model)
         
     def research_query(self, query: str, k: int = 5) -> Dict[str, Any]:
         """
@@ -37,17 +39,27 @@ class ResearchAgent:
         # Retrieve relevant documents
         documents = self.retriever.get_relevant_documents(query)
         
-        # Extract key information
+        # Extract key information from documents
         context = self._extract_context(documents)
         
+        # Check if web search is needed and enhance context
+        enhanced_context = context
+        web_search_results = None
+        
+        if self.tavily_agent.is_search_needed(query):
+            enhanced_context = self.tavily_agent.enhance_context_with_search(context, query)
+            web_search_results = self.tavily_agent.search_and_analyze(query)
+        
         # Generate research summary
-        summary = self._generate_summary(query, context)
+        summary = self._generate_summary(query, enhanced_context)
         
         return {
             "query": query,
             "documents": documents,
-            "context": context,
+            "context": enhanced_context,
+            "original_context": context,
             "summary": summary,
+            "web_search_results": web_search_results,
             "sources": [doc.metadata.get('source', 'unknown') for doc in documents]
         }
         

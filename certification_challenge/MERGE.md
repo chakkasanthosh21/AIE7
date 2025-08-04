@@ -240,3 +240,128 @@ print('Initialization:', result['status'])
 **Ready for merge! 🚀**
 
 This implementation demonstrates mastery of AI Engineering concepts and is ready for certification review and Demo Day presentation. 
+
+# Merge Instructions: Tavily Integration Feature
+
+## Feature Overview
+This feature adds Tavily web search capabilities to the Student Loan Assistant, enabling real-time information retrieval to enhance responses with current, up-to-date information beyond the static documentation.
+
+## Changes Made
+
+### 1. Dependencies Added
+- `langchain-tavily>=0.1.0` in `requirements.txt`
+- `TAVILY_API_KEY` environment variable in `env.template`
+
+### 2. New Files Created
+- `src/agents/tavily_search_agent.py` - New agent for web search functionality
+
+### 3. Files Modified
+- `src/agents/research_agent.py` - Integrated Tavily search agent
+- `src/agents/supervisor_agent.py` - Added web search metadata tracking
+- `src/main.py` - Added Tavily API key support
+- `app.py` - Enhanced UI to show web search status and results
+
+## Key Features Added
+
+### 🔍 Real-time Web Search
+- Performs web searches for current student loan information
+- Analyzes search results for relevance and accuracy
+- Extracts current information and generates recommendations
+
+### 🎯 Smart Search Detection
+- Automatically detects when web search is needed based on query keywords
+- Searches for current information when queries contain terms like "current", "2024", "latest", etc.
+
+### 📊 Enhanced Metadata
+- Tracks whether web search was used for each query
+- Displays web search sources in the UI
+- Integrates current information into responses
+
+### 🛡️ Graceful Degradation
+- System works without Tavily API key (web search disabled)
+- Clear warnings when web search is not configured
+- Fallback to document-only responses
+
+## Testing the Feature
+
+### 1. Set up Tavily API Key
+```bash
+# Get API key from https://tavily.com/
+export TAVILY_API_KEY="your_tavily_api_key_here"
+```
+
+### 2. Test Web Search Queries
+Try these queries that should trigger web search:
+- "What are the current student loan interest rates for 2024?"
+- "What's the latest news about student loan forgiveness?"
+- "What are the current deadlines for loan applications?"
+
+### 3. Verify UI Updates
+- Check that web search status is shown in the sidebar
+- Verify that response details show web search usage
+- Confirm web sources are displayed in the UI
+
+## Merge Instructions
+
+### Option 1: GitHub Pull Request (Recommended)
+
+1. **Create Pull Request**
+   ```bash
+   git push origin feature/tavily-integration
+   ```
+   Then create a PR on GitHub from `feature/tavily-integration` to `main`
+
+2. **Review Changes**
+   - Review all modified files
+   - Test the feature with and without Tavily API key
+   - Verify UI enhancements work correctly
+
+3. **Merge to Main**
+   - Squash and merge the PR
+   - Delete the feature branch
+
+### Option 2: GitHub CLI
+
+1. **Create and Merge PR**
+   ```bash
+   # Create PR
+   gh pr create --title "Add Tavily web search integration" \
+                --body "Enhances student loan assistant with real-time web search capabilities using Tavily API"
+   
+   # Merge PR
+   gh pr merge --squash
+   
+   # Delete feature branch
+   git checkout main
+   git pull origin main
+   git branch -d feature/tavily-integration
+   git push origin --delete feature/tavily-integration
+   ```
+
+## Post-Merge Tasks
+
+1. **Update Documentation**
+   - Update README.md to mention Tavily integration
+   - Add setup instructions for Tavily API key
+
+2. **Environment Setup**
+   - Ensure `.env` template includes `TAVILY_API_KEY`
+   - Update deployment scripts if needed
+
+3. **Testing**
+   - Run full system tests with and without Tavily
+   - Verify all existing functionality still works
+
+## Configuration Notes
+
+- **Optional Feature**: System works without Tavily API key
+- **API Limits**: Be aware of Tavily API usage limits
+- **Cost**: Tavily has usage-based pricing
+- **Privacy**: Web search results are processed but not stored
+
+## Rollback Plan
+
+If issues arise, the feature can be easily disabled by:
+1. Not setting the `TAVILY_API_KEY` environment variable
+2. The system will automatically fall back to document-only responses
+3. No breaking changes to existing functionality 

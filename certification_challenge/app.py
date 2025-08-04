@@ -83,13 +83,29 @@ def initialize_system():
     if not st.session_state.initialized:
         with st.spinner("🚀 Initializing Student Loan Assistant..."):
             try:
-                assistant = StudentLoanAssistant()
+                # Get API keys from environment
+                openai_api_key = os.getenv("OPENAI_API_KEY")
+                cohere_api_key = os.getenv("COHERE_API_KEY")
+                tavily_api_key = os.getenv("TAVILY_API_KEY")
+                
+                assistant = StudentLoanAssistant(
+                    openai_api_key=openai_api_key,
+                    cohere_api_key=cohere_api_key,
+                    tavily_api_key=tavily_api_key
+                )
                 init_result = assistant.initialize_system()
                 
                 if init_result["status"] == "success":
                     st.session_state.assistant = assistant
                     st.session_state.initialized = True
                     st.success("✅ System initialized successfully!")
+                    
+                    # Show Tavily status
+                    if tavily_api_key:
+                        st.info("🔍 Web search enabled with Tavily")
+                    else:
+                        st.warning("⚠️ Web search disabled - TAVILY_API_KEY not configured")
+                    
                     return True
                 else:
                     st.error(f"❌ Initialization failed: {init_result.get('error', 'Unknown error')}")
@@ -275,13 +291,25 @@ def display_chat_history():
                 with st.expander("📊 Response Details"):
                     metadata = message["metadata"]
                     
-                    col1, col2, col3 = st.columns(3)
+                    col1, col2, col3, col4 = st.columns(4)
                     with col1:
                         st.metric("Query Type", metadata.get("query_type", "Unknown"))
                     with col2:
                         st.metric("Complexity", metadata.get("complexity_level", "Unknown"))
                     with col3:
                         st.metric("Sources", len(metadata.get("research_sources", [])))
+                    with col4:
+                        web_search_used = metadata.get("web_search_used", False)
+                        st.metric("Web Search", "✅ Used" if web_search_used else "❌ Not Used")
+                    
+                    # Display web search information if used
+                    if web_search_used and "web_search_results" in metadata:
+                        st.markdown("#### 🔍 Web Search Information")
+                        web_results = metadata["web_search_results"]
+                        if web_results and "sources" in web_results:
+                            st.write("**Web Sources:**")
+                            for i, source in enumerate(web_results["sources"][:3], 1):
+                                st.write(f"{i}. {source}")
                     
                     # Display quality metrics if available
                     if "response_quality" in metadata:

@@ -81,12 +81,19 @@ class SupervisorAgent:
             
             print(f"👨‍💼 Supervisor reviewing response for: {query}")
             
+            # Check if web search was used
+            web_search_used = research_results.get("web_search_results") is not None
+            web_search_info = ""
+            if web_search_used:
+                web_search_info = f"\nWeb Search Results: {research_results.get('web_search_results', {}).get('current_info', 'No current info found')}"
+            
             # Review the response quality
             review_prompt = f"""
             As a supervisor, review this student loan response:
             
             Query: {query}
             Research Summary: {research_results.get('summary', '')}
+            {web_search_info}
             Generated Response: {response_data.get('response', '')}
             
             Please:
@@ -94,6 +101,7 @@ class SupervisorAgent:
             2. Check if all important information from research is included
             3. Ensure the tone is appropriate and empathetic
             4. Confirm the response provides clear next steps
+            5. If web search was used, ensure current information is properly integrated
             
             Provide a final, polished response that incorporates any necessary improvements:
             """
@@ -106,7 +114,9 @@ class SupervisorAgent:
                 "complexity_level": self._assess_complexity(query),
                 "research_sources": research_results.get('sources', []),
                 "response_quality": response_data.get('quality_metrics', {}),
-                "processing_time": "completed"
+                "processing_time": "completed",
+                "web_search_used": web_search_used,
+                "web_search_results": research_results.get('web_search_results', {})
             }
             
             return {

@@ -25,6 +25,7 @@ class StudentLoanAssistant:
     def __init__(self, 
                  openai_api_key: str = None,
                  cohere_api_key: str = None,
+                 tavily_api_key: str = None,
                  data_path: str = "../04_Production_RAG/data"):
         """
         Initialize the Student Loan Assistant system.
@@ -32,10 +33,12 @@ class StudentLoanAssistant:
         Args:
             openai_api_key: OpenAI API key (optional, will use env var if not provided)
             cohere_api_key: Cohere API key (optional, for reranking)
+            tavily_api_key: Tavily API key (optional, for web search)
             data_path: Path to the data directory
         """
         self.openai_api_key = openai_api_key
         self.cohere_api_key = cohere_api_key
+        self.tavily_api_key = tavily_api_key
         self.data_path = data_path
         
         # Initialize components
@@ -74,6 +77,10 @@ class StudentLoanAssistant:
             self.research_agent = ResearchAgent(self.retrieval_system.ensemble_retriever)
             self.response_agent = ResponseAgent()
             self.supervisor_agent = SupervisorAgent(self.research_agent, self.response_agent)
+            
+            # Set up Tavily API key if provided
+            if self.tavily_api_key:
+                os.environ["TAVILY_API_KEY"] = self.tavily_api_key
             
             # Initialize evaluator
             self.evaluator = StudentLoanEvaluator(openai_api_key=self.openai_api_key)
