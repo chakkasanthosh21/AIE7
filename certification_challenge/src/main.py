@@ -56,9 +56,13 @@ class StudentLoanAssistant:
     def initialize_system(self) -> Dict[str, Any]:
         """Initialize all system components."""
         try:
+            print(f"Initializing system with data path: {self.data_path}")
+            
             # Load data
             self.data_loader = StudentLoanDataLoader(self.data_path)
             self.data = self.data_loader.load_all_data()
+            
+            print(f"Loaded {len(self.data.get('documents', []))} documents")
             
             # Initialize retrieval system
             self.retrieval_system = AdvancedRetrievalSystem(
@@ -68,12 +72,17 @@ class StudentLoanAssistant:
             
             # Setup vector store and retrievers
             if self.data.get("documents"):
+                print("Setting up vector store...")
                 self.retrieval_system.setup_vector_store(self.data["documents"])
+                print("Setting up BM25 retriever...")
                 self.retrieval_system.setup_bm25_retriever(self.data["documents"])
+                print("Setting up ensemble retriever...")
                 self.retrieval_system.setup_ensemble_retriever()
+                print("Setting up compression retriever...")
                 self.retrieval_system.setup_compression_retriever(self.retrieval_system.vector_retriever)
             
             # Initialize agents
+            print("Initializing agents...")
             self.research_agent = ResearchAgent(self.retrieval_system.ensemble_retriever)
             self.response_agent = ResponseAgent()
             self.supervisor_agent = SupervisorAgent(self.research_agent, self.response_agent)
@@ -83,9 +92,11 @@ class StudentLoanAssistant:
                 os.environ["TAVILY_API_KEY"] = self.tavily_api_key
             
             # Initialize evaluator
+            print("Initializing evaluator...")
             self.evaluator = StudentLoanEvaluator(openai_api_key=self.openai_api_key)
             
             self.initialized = True
+            print("System initialization complete!")
             
             return {
                 "status": "success",
@@ -98,6 +109,9 @@ class StudentLoanAssistant:
             }
             
         except Exception as e:
+            print(f"Error during initialization: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return {
                 "status": "error",
                 "error": str(e),

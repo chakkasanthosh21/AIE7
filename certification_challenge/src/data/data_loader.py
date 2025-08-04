@@ -125,6 +125,12 @@ class StudentLoanDataLoader:
         # Split documents for processing
         split_docs = self.split_documents()
         
+        # Create empty DataFrames if files don't exist
+        if complaints is None:
+            complaints = pd.DataFrame()
+        if test_data is None:
+            test_data = pd.DataFrame()
+        
         return {
             "documents": documents,
             "split_documents": split_docs,
