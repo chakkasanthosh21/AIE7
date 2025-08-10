@@ -3,42 +3,76 @@
      height="auto"/>
 </p>
 
-## <h1 align="center" id="heading">Session 13: MCP</h1>
+# 13_MCP - Model Context Protocol (MCP) Integration
 
-### [Quicklinks](https://github.com/AI-Maker-Space/AIE7/00_AIM_Quicklinks)
+This directory contains the implementation of **Activity #1** and **Activity #2** from the AIE7 course, demonstrating MCP (Model Context Protocol) integration with AI applications.
 
-| 🤓 Pre-work | 📰 Session Sheet | ⏺️ Recording     | 🖼️ Slides        | 👨‍💻 Repo         | 📝 Homework      | 📁 Feedback       |
-|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|
+## 🏗️ Directory Structure
 
+### **AIE7-MCP-Session/** - Activity #1: Calculator MCP App
+- `server.py` - Main MCP server with calculator and dice rolling tools
+- `test_server.py` - Test script for the calculator app
+- `dice_roller.py` - Dice rolling tool implementation
+- `pyproject.toml` - Project dependencies
+- `README.md` - Detailed setup and usage instructions
 
-# Build 🏗️
+### **weather-mcp-server/** - Activity #2: LangGraph + MCP Integration
+- `server.py` - Weather MCP server with current weather and forecast tools
+- `working_langgraph_app.py` - Production-ready LangGraph + MCP integration
+- `simple_langgraph_mcp.py` - Simple demo of LangGraph + MCP
+- `test_weather.py` - Test script for weather MCP server
+- `requirements.txt` - Python dependencies
+- `README.md` - Weather server documentation
 
-First, let's clone the MCP Session repository.
+## 🎯 What Each Activity Demonstrates
 
+### **Activity #1: Calculator MCP App**
+- Building a basic MCP server with mathematical tools
+- Calculator tool for evaluating expressions
+- Dice rolling tool for random number generation
+- Testing MCP tools locally
+
+### **Activity #2: LangGraph + MCP Integration**
+- Integrating MCP servers with LangGraph applications
+- Building conversational AI agents that use local tools
+- State management and conversation flow
+- Error handling and graceful degradation
+
+## 🚀 Quick Start
+
+### **Test Calculator App (Activity #1):**
 ```bash
-cd ~
-git clone git@github.com:AI-Maker-Space/AIE7-MCP-Session.git
+cd AIE7-MCP-Session
+python3 test_server.py
 ```
 
-Next, we're going to add our own tool to the flow - this will be achieved through adding tools in the `server.py`.
+### **Test Weather MCP Server (Activity #2):**
+```bash
+cd weather-mcp-server
+python3 test_weather.py
+```
 
-That's it, that's all folks!
+### **Test LangGraph Integration (Activity #2):**
+```bash
+cd weather-mcp-server
+python3 working_langgraph_app.py
+```
 
-# Ship 🚢
+## 🔑 Prerequisites
 
-- 5min. Loom Video showcasing the tool being used by your MCP Client (Cursor, in this case!)
+- Python 3.8+
+- Required packages (see individual `requirements.txt` files)
+- OpenWeatherMap API key (for weather functionality)
+- OpenAI API key (for LangGraph LLM integration)
 
-# Share 🚀
-- Walk through your app and explain what you've completed in the Loom video
-- Make a social media post about your final application and tag @AIMakerspace
-- Share 3 lessons learned
-- Share 3 lessons not learned
+## 📚 Key Learning Outcomes
 
-# Submitting Your Homework
+1. **MCP Protocol**: Understanding and implementing Model Context Protocol
+2. **Local Tool Access**: Building AI agents that can use local services
+3. **LangGraph Integration**: Combining conversation management with tool access
+4. **Error Handling**: Building resilient applications that degrade gracefully
+5. **Production Readiness**: Creating applications ready for real-world use
 
-Follow these steps to prepare and submit your homework assignment:
-1. Record a Loom video reviewing the content of your completed notebooks
-2. Complete your Homework Submission Form, include all of the following:
-    + The URL to your Loom Video
-    + Your _Three Lessons Learned / Not Yet Learned_
-    + The URLs to any social media posts (LinkedIn, X, Discord, etc.) ⬅️ _easy Extra Credit points!_
+---
+
+**🎉 These activities demonstrate modern AI application architecture using MCP for local tool access and LangGraph for intelligent conversation management!**
