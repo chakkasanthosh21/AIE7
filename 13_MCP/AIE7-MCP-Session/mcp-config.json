@@ -1,0 +1,8 @@
+{
+    "mcpServers": {
+        "mcp-server": {
+            "command": "python3",
+            "args": ["/Users/santhoshchaka/Desktop/AIE7/AIE7/13_MCP/AIE7-MCP-Session/server.py"]
+        }
+    }
+}

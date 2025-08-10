@@ -25,9 +25,14 @@ def roll_dice(notation: str, num_rolls: int = 1) -> str:
 Add your own tool here, and then use it through Cursor!
 """
 @mcp.tool()
-def YOUR_TOOL_NAME(query: str) -> str:
-    """YOUR_TOOL_DESCRIPTION"""
-    return "YOUR_TOOL_RESPONSE"
+def calculate(expression: str) -> str:
+    """Evaluate a mathematical expression and return the result"""
+    try:
+        # Use eval() for safe mathematical expressions
+        result = eval(expression)
+        return f"The result of {expression} = {result}"
+    except Exception as e:
+        return f"Error evaluating expression '{expression}': {str(e)}"
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
