@@ -83,6 +83,8 @@ Build a LangGraph Graph to "use" your application.
 
 Do this by creating a Simple Agent that can make API calls to the 🤖Agent Node above through the A2A protocol. 
 
+### ✅ Answer:-I started the LangGraph A2A server using uv run python -m app and verified it was running. Then, I used the provided test client (uv run python app/test_client.py) to send queries to the agent node via the A2A protocol. The agent responded as expected, demonstrating successful agent-to-agent communication and protocol compliance. This setup shows how a simple agent can interact with the main agent using the A2A protocol.
+
 ### ❓ Question #1:
 
 What are the core components of an `AgentCard`?
