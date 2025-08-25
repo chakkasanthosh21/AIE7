@@ -65,9 +65,6 @@ st.markdown("""
 
 def safe_json_serialize(obj):
     """Safely serialize objects to JSON, handling numpy types and other non-serializable objects."""
-    import numpy as np
-    import pandas as pd
-    
     if isinstance(obj, np.integer):
         return int(obj)
     elif isinstance(obj, np.floating):
@@ -78,6 +75,8 @@ def safe_json_serialize(obj):
         return obj.tolist()
     elif isinstance(obj, pd.DataFrame):
         return obj.to_dict('records')
+    elif hasattr(obj, 'dtype') and hasattr(obj, 'name'):  # Handle numpy dtypes
+        return str(obj)
     elif isinstance(obj, dict):
         return {str(k): safe_json_serialize(v) for k, v in obj.items()}
     elif isinstance(obj, list):
@@ -226,8 +225,8 @@ def main():
                         results['semantic_analysis'] = semantic_results
                         
                         # Also run individual dataset semantic analysis
-                        for name, dataset_df in data_sources.items():
-                            individual_semantic = semantic_validator.analyze_column_semantics_advanced({name: dataset_df})
+                        for name, current_dataset in data_sources.items():
+                            individual_semantic = semantic_validator.analyze_column_semantics_advanced({name: current_dataset})
                             if 'semantic_analysis' not in results:
                                 results['semantic_analysis'] = {}
                             results['semantic_analysis'][f'{name}_individual'] = individual_semantic
@@ -237,13 +236,13 @@ def main():
                         ml_results = {}
                         anomaly_summaries = {}
                         
-                        for name, dataset_df in data_sources.items():
+                        for name, current_dataset in data_sources.items():
                             # Get detailed ML analysis
-                            ml_analysis = ml_validator.analyze_data_quality_advanced({name: dataset_df})
+                            ml_analysis = ml_validator.analyze_data_quality_advanced({name: current_dataset})
                             ml_results[name] = ml_analysis
                             
                             # Get anomaly summary
-                            anomaly_summary = ml_validator.get_anomaly_summary(dataset_df)
+                            anomaly_summary = ml_validator.get_anomaly_summary(current_dataset)
                             anomaly_summaries[name] = anomaly_summary
                         
                         results['ml_analysis'] = ml_results
@@ -255,7 +254,7 @@ def main():
                         agent_context = intelligent_agent.get_dataset_summary(data_sources)
                         results['agent_context'] = agent_context
                     
-                    results['data_sources'] = {name: {'rows': len(dataset_df), 'columns': len(dataset_df.columns)} for name, dataset_df in data_sources.items()}
+                    results['data_sources'] = {name: {'rows': len(current_dataset), 'columns': len(current_dataset.columns)} for name, current_dataset in data_sources.items()}
                     
                     st.success("✅ Validation completed successfully!")
                     
@@ -267,7 +266,7 @@ def main():
                     st.exception(e)
                     results = None
 
-def display_enhanced_results(results: Dict, data_sources: Dict, intelligent_agent):
+def display_enhanced_results(results: Dict, input_data_sources: Dict, intelligent_agent):
     """Display enhanced validation results."""
     st.header("📊 Enhanced Validation Results")
     
@@ -427,27 +426,6 @@ def display_enhanced_results(results: Dict, data_sources: Dict, intelligent_agen
         if 'agent_context' in results:
             st.info("🤖 AI Agent is ready to help! Ask questions about your datasets.")
             
-            # Show suggested questions
-            st.subheader("💡 Suggested Questions")
-            suggested_questions = [
-                "What are the main data quality issues in my datasets?",
-                "Which columns have the most anomalies?",
-                "Are there any schema inconsistencies between datasets?",
-                "What recommendations do you have for improving data quality?",
-                "Can you analyze the relationship between specific columns?",
-                "What patterns do you see in the data?",
-                "Are there any data type mismatches?",
-                "What's the overall health score of my data?"
-            ]
-            
-            # Create columns for questions
-            cols = st.columns(2)
-            for i, question in enumerate(suggested_questions):
-                col_idx = i % 2
-                with cols[col_idx]:
-                    if st.button(question, key=f"q_{i}"):
-                        st.session_state.user_question = question
-            
             # Chat interface
             st.subheader("💬 Chat with AI Agent")
             
@@ -455,44 +433,78 @@ def display_enhanced_results(results: Dict, data_sources: Dict, intelligent_agen
             if 'chat_history' not in st.session_state:
                 st.session_state.chat_history = []
             
-            # User input
-            user_question = st.text_input("Ask a question about your data:", key="user_input")
+            # Initialize current question
+            if 'current_question' not in st.session_state:
+                st.session_state.current_question = ""
             
-            if st.button("Send", key="send_button") or 'user_question' in st.session_state:
-                if user_question or st.session_state.get('user_question'):
-                    question = user_question or st.session_state.user_question
-                    st.session_state.user_question = None  # Clear the suggested question
+            # Display suggested questions
+            st.write("**💡 Quick Questions (click to ask):**")
+            suggested_questions = [
+                "What are the main data quality issues?",
+                "Which columns have anomalies?",
+                "Any schema inconsistencies?",
+                "Data quality recommendations?",
+                "Column relationships?",
+                "Data patterns?",
+                "Data type mismatches?",
+                "Overall data health score?"
+            ]
+            
+            # Create a more compact layout for questions
+            cols = st.columns(4)
+            for i, question in enumerate(suggested_questions):
+                col_idx = i % 4
+                with cols[col_idx]:
+                    if st.button(question, key=f"q_{i}", help="Click to ask this question"):
+                        st.session_state.current_question = question
+                        st.session_state.user_question = question
+            
+            # Chat form
+            with st.form(key="chat_form"):
+                # Pre-fill with suggested question if available
+                if st.session_state.current_question:
+                    question_input = st.text_input("Ask a question about your data:", value=st.session_state.current_question, key="question_input")
+                else:
+                    question_input = st.text_input("Ask a question about your data:", key="question_input")
+                
+                submit_button = st.form_submit_button("🤖 Ask AI Agent")
+                
+                if submit_button and question_input:
+                    # Add user question to chat
+                    st.session_state.chat_history.append({"role": "user", "content": question_input})
                     
-                    if question:
-                        # Add user question to chat
-                        st.session_state.chat_history.append({"role": "user", "content": question})
-                        
-                        # Get AI response
-                        with st.spinner("🤖 AI Agent is thinking..."):
-                            try:
-                                ai_response = intelligent_agent.chat_with_agent(
-                                    question, 
-                                    st.session_state.chat_history
-                                )
-                                st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
-                            except Exception as e:
-                                error_msg = f"Sorry, I encountered an error: {str(e)}"
-                                st.session_state.chat_history.append({"role": "assistant", "content": error_msg})
+                    # Get AI response
+                    with st.spinner("🤖 AI Agent is thinking..."):
+                        try:
+                            ai_response = intelligent_agent.chat_with_agent(
+                                question_input, 
+                                st.session_state.chat_history
+                            )
+                            st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
+                        except Exception as e:
+                            error_msg = f"Sorry, I encountered an error: {str(e)}"
+                            st.session_state.chat_history.append({"role": "assistant", "content": error_msg})
+                    
+                    # Clear the current question
+                    st.session_state.current_question = ""
+                    st.session_state.user_question = ""
             
             # Display chat history
             if st.session_state.chat_history:
                 st.subheader("💬 Chat History")
-                for message in st.session_state.chat_history:
+                for i, message in enumerate(st.session_state.chat_history):
                     if message["role"] == "user":
-                        st.write(f"**You:** {message['content']}")
+                        st.write(f"**👤 You:** {message['content']}")
                     else:
-                        st.write(f"**AI Agent:** {message['content']}")
-                    st.divider()
+                        st.write(f"**🤖 AI Agent:** {message['content']}")
+                    if i < len(st.session_state.chat_history) - 1:
+                        st.divider()
             
             # Clear chat button
             if st.button("🗑️ Clear Chat History"):
                 st.session_state.chat_history = []
-                st.rerun()
+                st.session_state.current_question = ""
+                st.session_state.user_question = ""
                 
         else:
             st.info("🧠 Enable AI Agent to chat about your datasets")
@@ -513,9 +525,6 @@ def display_enhanced_results(results: Dict, data_sources: Dict, intelligent_agen
                         st.write("**Data Completeness Heatmap:**")
                         
                         # Create a simple completeness visualization
-                        import pandas as pd
-                        import plotly.express as px
-                        
                         # Sample data for visualization
                         sample_data = {
                             'Column': list(completeness.keys())[:10],  # Show first 10 columns
@@ -549,12 +558,16 @@ def display_enhanced_results(results: Dict, data_sources: Dict, intelligent_agen
                         st.plotly_chart(fig2, use_container_width=True)
                 
                 # Example 3: Data type distribution
-                if 'data_sources' in results and dataset_name in data_sources:
-                    dataset_df = data_sources[dataset_name]
+                if 'data_sources' in results and dataset_name in input_data_sources:
+                    current_dataset = input_data_sources[dataset_name]
                     st.write("**Data Type Distribution:**")
                     
-                    dtype_counts = dataset_df.dtypes.value_counts()
-                    fig3 = px.pie(values=dtype_counts.values, names=dtype_counts.index,
+                    dtype_counts = current_dataset.dtypes.value_counts()
+                    # Convert numpy dtypes to strings to avoid JSON serialization issues
+                    dtype_names = [str(dtype) for dtype in dtype_counts.index]
+                    dtype_values = [int(count) for count in dtype_counts.values]
+                    
+                    fig3 = px.pie(values=dtype_values, names=dtype_names,
                                 title=f"Data Types - {dataset_name}")
                     st.plotly_chart(fig3, use_container_width=True)
                 
@@ -589,7 +602,7 @@ def display_enhanced_results(results: Dict, data_sources: Dict, intelligent_agen
             )
             
             # Create summary report
-            summary_report = create_summary_report(results, data_sources)
+            summary_report = create_summary_report(results, input_data_sources)
             st.download_button(
                 label="📥 Download Summary Report (TXT)",
                 data=summary_report,
@@ -603,7 +616,7 @@ def display_enhanced_results(results: Dict, data_sources: Dict, intelligent_agen
             
             # Fallback: try to create a simplified summary
             try:
-                summary_report = create_summary_report(results, data_sources)
+                summary_report = create_summary_report(results, input_data_sources)
                 st.download_button(
                     label="📥 Download Summary Report (TXT) - Fallback",
                     data=summary_report,
@@ -613,7 +626,7 @@ def display_enhanced_results(results: Dict, data_sources: Dict, intelligent_agen
             except Exception as e2:
                 st.error(f"❌ Could not create summary report: {str(e2)}")
 
-def create_summary_report(results: Dict, data_sources: Dict) -> str:
+def create_summary_report(results: Dict, input_data_sources: Dict) -> str:
     """Create a human-readable summary report."""
     report = []
     report.append("=" * 60)
@@ -624,10 +637,10 @@ def create_summary_report(results: Dict, data_sources: Dict) -> str:
     # Dataset overview
     report.append("DATASET OVERVIEW:")
     report.append("-" * 30)
-    for name, dataset_df in data_sources.items():
+    for name, current_dataset in input_data_sources.items():
         report.append(f"Dataset: {name}")
-        report.append(f"  Shape: {dataset_df.shape}")
-        report.append(f"  Columns: {list(dataset_df.columns)}")
+        report.append(f"  Shape: {current_dataset.shape}")
+        report.append(f"  Columns: {list(current_dataset.columns)}")
         report.append("")
     
     # Results summary

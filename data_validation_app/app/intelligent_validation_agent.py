@@ -108,12 +108,12 @@ Always explain your reasoning and provide actionable insights."""),
             schemas = {}
             conflicts = []
             
-            for name, df in data_sources.items():
+            for name, dataset_df in data_sources.items():
                 schemas[name] = {
-                    'columns': list(df.columns),
-                    'dtypes': df.dtypes.to_dict(),
-                    'shape': df.shape,
-                    'memory_usage_mb': df.memory_usage(deep=True).sum() / 1024 / 1024
+                    'columns': list(dataset_df.columns),
+                    'dtypes': dataset_df.dtypes.to_dict(),
+                    'shape': dataset_df.shape,
+                    'memory_usage_mb': dataset_df.memory_usage(deep=True).sum() / 1024 / 1024
                 }
             
             # Analyze differences
@@ -150,29 +150,29 @@ Always explain your reasoning and provide actionable insights."""),
         try:
             quality_metrics = {}
             
-            for name, df in data_sources.items():
+            for name, dataset_df in data_sources.items():
                 # Basic quality metrics
-                total_cells = df.size
-                null_cells = df.isnull().sum().sum()
+                total_cells = dataset_df.size
+                null_cells = dataset_df.isnull().sum().sum()
                 completeness = 1 - (null_cells / total_cells)
                 
-                duplicate_rows = df.duplicated().sum()
-                consistency = 1 - (duplicate_rows / len(df))
+                duplicate_rows = dataset_df.duplicated().sum()
+                consistency = 1 - (duplicate_rows / len(dataset_df))
                 
                 # Column-specific quality
                 column_quality = {}
-                for col in df.columns:
-                    col_data = df[col].dropna()
+                for col in dataset_df.columns:
+                    col_data = dataset_df[col].dropna()
                     if len(col_data) > 0:
                         if col_data.dtype in ['int64', 'float64']:
                             column_quality[col] = {
-                                'completeness': 1 - (col_data.isnull().sum() / len(df)),
+                                'completeness': 1 - (col_data.isnull().sum() / len(dataset_df)),
                                 'uniqueness': col_data.nunique() / len(col_data),
                                 'range': (col_data.min(), col_data.max())
                             }
                         else:
                             column_quality[col] = {
-                                'completeness': 1 - (col_data.isnull().sum() / len(df)),
+                                'completeness': 1 - (col_data.isnull().sum() / len(dataset_df)),
                                 'uniqueness': col_data.nunique() / len(col_data),
                                 'avg_length': col_data.astype(str).str.len().mean()
                             }
@@ -199,11 +199,11 @@ Always explain your reasoning and provide actionable insights."""),
         try:
             business_rule_violations = {}
             
-            for name, df in data_sources.items():
+            for name, dataset_df in data_sources.items():
                 violations = []
                 
-                for col in df.columns:
-                    col_data = df[col].dropna()
+                for col in dataset_df.columns:
+                    col_data = dataset_df[col].dropna()
                     
                     if len(col_data) > 0:
                         # Common business rules
@@ -250,11 +250,11 @@ Always explain your reasoning and provide actionable insights."""),
         try:
             anomaly_report = {}
             
-            for name, df in data_sources.items():
+            for name, dataset_df in data_sources.items():
                 anomalies = {}
                 
-                for col in df.select_dtypes(include=[np.number]).columns:
-                    col_data = df[col].dropna()
+                for col in dataset_df.select_dtypes(include=[np.number]).columns:
+                    col_data = dataset_df[col].dropna()
                     
                     if len(col_data) > 10:
                         # Statistical outlier detection
@@ -293,11 +293,11 @@ Always explain your reasoning and provide actionable insights."""),
         try:
             semantic_analysis = {}
             
-            for name, df in data_sources.items():
+            for name, dataset_df in data_sources.items():
                 column_insights = {}
                 
-                for col in df.columns:
-                    col_data = df[col].dropna()
+                for col in dataset_df.columns:
+                    col_data = dataset_df[col].dropna()
                     
                     if len(col_data) > 0:
                         # Semantic analysis
@@ -345,11 +345,11 @@ Always explain your reasoning and provide actionable insights."""),
         try:
             compliance_report = {}
             
-            for name, df in data_sources.items():
+            for name, dataset_df in data_sources.items():
                 compliance_issues = []
                 
                 # GDPR-like compliance checks
-                for col in df.columns:
+                for col in dataset_df.columns:
                     col_lower = col.lower()
                     
                     # PII detection
@@ -361,11 +361,11 @@ Always explain your reasoning and provide actionable insights."""),
                         compliance_issues.append(f"Column {col}: Sensitive data detected")
                 
                 # Data retention check
-                if 'created_date' in df.columns or 'updated_date' in df.columns:
-                    date_col = 'created_date' if 'created_date' in df.columns else 'updated_date'
-                    if df[date_col].dtype == 'object':
+                if 'created_date' in dataset_df.columns or 'updated_date' in dataset_df.columns:
+                    date_col = 'created_date' if 'created_date' in dataset_df.columns else 'updated_date'
+                    if dataset_df[date_col].dtype == 'object':
                         try:
-                            dates = pd.to_datetime(df[date_col])
+                            dates = pd.to_datetime(dataset_df[date_col])
                             if (dates < pd.Timestamp('2010-01-01')).any():
                                 compliance_issues.append(f"Column {date_col}: Data older than 10 years detected")
                         except:
@@ -388,15 +388,15 @@ Always explain your reasoning and provide actionable insights."""),
         try:
             performance_report = {}
             
-            for name, df in data_sources.items():
+            for name, dataset_df in data_sources.items():
                 optimizations = []
                 
                 # Memory usage analysis
-                current_memory = df.memory_usage(deep=True).sum() / 1024 / 1024  # MB
+                current_memory = dataset_df.memory_usage(deep=True).sum() / 1024 / 1024  # MB
                 
                 # Data type optimization opportunities
-                for col in df.columns:
-                    col_data = df[col].dropna()
+                for col in dataset_df.columns:
+                    col_data = dataset_df[col].dropna()
                     
                     if col_data.dtype == 'object':
                         # Check if can be converted to category
@@ -411,8 +411,8 @@ Always explain your reasoning and provide actionable insights."""),
                             optimizations.append(f"Column {col}: Convert to int16 (saves memory)")
                 
                 # Row optimization
-                if df.duplicated().sum() > 0:
-                    optimizations.append(f"Remove {df.duplicated().sum()} duplicate rows")
+                if dataset_df.duplicated().sum() > 0:
+                    optimizations.append(f"Remove {dataset_df.duplicated().sum()} duplicate rows")
                 
                 performance_report[name] = {
                     'current_memory_mb': current_memory,
@@ -568,10 +568,10 @@ Be helpful, conversational, and provide specific insights about the user's data.
     def get_dataset_summary(self, data_sources: Dict[str, pd.DataFrame]) -> str:
         """Get a quick summary of all datasets for the agent to reference."""
         summary = []
-        for name, df in data_sources.items():
-            summary.append(f"Dataset '{name}': {len(df)} rows, {len(df.columns)} columns")
-            summary.append(f"Columns: {', '.join(df.columns[:5])}{'...' if len(df.columns) > 5 else ''}")
-            summary.append(f"Data types: {dict(df.dtypes.value_counts())}")
+        for name, dataset_df in data_sources.items():
+            summary.append(f"Dataset '{name}': {len(dataset_df)} rows, {len(dataset_df.columns)} columns")
+            summary.append(f"Columns: {', '.join(dataset_df.columns[:5])}{'...' if len(dataset_df.columns) > 5 else ''}")
+            summary.append(f"Data types: {dict(dataset_df.dtypes.value_counts())}")
             summary.append("---")
         
         return "\n".join(summary)

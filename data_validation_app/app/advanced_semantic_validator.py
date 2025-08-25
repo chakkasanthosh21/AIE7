@@ -56,12 +56,12 @@ class AdvancedSemanticValidator:
         all_embeddings = {}
         
         # Generate embeddings for all columns with context
-        for dataset_name, df in data_sources.items():
+        for dataset_name, dataset_df in data_sources.items():
             semantic_analysis[dataset_name] = {}
             
-            for col in df.columns:
+            for col in dataset_df.columns:
                 # Create rich context for better semantic understanding
-                context = self._create_column_context(df, col, dataset_name)
+                context = self._create_column_context(dataset_df, col, dataset_name)
                 embedding = self.embedding_model.encode(context)
                 
                 # Store embedding with metadata
@@ -71,8 +71,8 @@ class AdvancedSemanticValidator:
                     'dataset': dataset_name,
                     'column': col,
                     'context': context,
-                    'dtype': str(df[col].dtype),
-                    'sample_values': df[col].dropna().head(5).tolist()
+                    'dtype': str(dataset_df[col].dtype),
+                    'sample_values': dataset_df[col].dropna().head(5).tolist()
                 }
         
         # Store embeddings in ChromaDB
@@ -99,8 +99,8 @@ class AdvancedSemanticValidator:
         
         # Get all column names from all datasets
         all_columns = {}
-        for dataset_name, df in data_sources.items():
-            all_columns[dataset_name] = list(df.columns)
+        for dataset_name, dataset_df in data_sources.items():
+            all_columns[dataset_name] = list(dataset_df.columns)
         
         # Find common columns across datasets
         common_columns = set.intersection(*[set(cols) for cols in all_columns.values()])
@@ -112,9 +112,9 @@ class AdvancedSemanticValidator:
             col_analysis = {}
             
             # Analyze each dataset's column data
-            for dataset_name, df in data_sources.items():
-                if common_col in df.columns:
-                    col_data = df[common_col].dropna()
+            for dataset_name, dataset_df in data_sources.items():
+                if common_col in dataset_df.columns:
+                    col_data = dataset_df[common_col].dropna()
                     if len(col_data) > 0:
                         # Get sample values and basic stats
                         sample_values = col_data.head(5).tolist()
@@ -236,15 +236,15 @@ class AdvancedSemanticValidator:
         mapping_recommendations = []
         
         # Simple string similarity analysis
-        for dataset_name, df in data_sources.items():
+        for dataset_name, dataset_df in data_sources.items():
             semantic_analysis[dataset_name] = {}
             
-            for col in df.columns:
+            for col in dataset_df.columns:
                 # Basic semantic analysis
-                semantic_type = self._classify_column_semantic_type(df[col])
+                semantic_type = self._classify_column_semantic_type(dataset_df[col])
                 semantic_analysis[dataset_name][col] = {
                     'semantic_type': semantic_type,
-                    'context': f"Column: {col}, Type: {df[col].dtype}, Dataset: {dataset_name}"
+                    'context': f"Column: {col}, Type: {dataset_df[col].dtype}, Dataset: {dataset_name}"
                 }
         
         # Find relationships between datasets

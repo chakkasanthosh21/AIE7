@@ -24,28 +24,30 @@ class AdvancedMLValidator:
         self.kmeans = KMeans(n_clusters=3, random_state=42)
         
     def analyze_data_quality_advanced(self, data_sources: Dict[str, pd.DataFrame]) -> Dict:
-        """Advanced data quality analysis using ML and statistics."""
-        st.info("🤖 Running advanced ML-powered quality analysis...")
-        
+        """Analyze data quality across multiple datasets using advanced ML techniques."""
         quality_analysis = {}
         
-        for dataset_name, df in data_sources.items():
-            st.write(f"📊 Analyzing {dataset_name}...")
-            
-            dataset_analysis = {
-                'anomalies': self._detect_anomalies_advanced(df),
-                'distributions': self._analyze_distributions_advanced(df),
-                'patterns': self._detect_data_patterns(df),
-                'quality_score': self._calculate_ml_quality_score(df),
-                'recommendations': []
-            }
-            
-            # Generate ML-based recommendations
-            dataset_analysis['recommendations'] = self._generate_ml_recommendations(
-                dataset_analysis, dataset_name
-            )
-            
-            quality_analysis[dataset_name] = dataset_analysis
+        for dataset_name, dataset_df in data_sources.items():
+            try:
+                # Analyze data quality for this dataset
+                dataset_analysis = {
+                    'anomalies': self._detect_anomalies_advanced(dataset_df),
+                    'distributions': self._analyze_distributions_advanced(dataset_df),
+                    'patterns': self._detect_data_patterns(dataset_df),
+                    'quality_score': self._calculate_ml_quality_score(dataset_df),
+                    'recommendations': []
+                }
+                
+                # Generate ML-based recommendations
+                dataset_analysis['recommendations'] = self._generate_ml_recommendations(
+                    dataset_analysis, dataset_name
+                )
+                
+                quality_analysis[dataset_name] = dataset_analysis
+                
+            except Exception as e:
+                st.warning(f"⚠️ Could not analyze {dataset_name}: {str(e)}")
+                quality_analysis[dataset_name] = {'error': str(e)}
         
         return quality_analysis
     
