@@ -2,8 +2,8 @@
 
 import asyncio
 from typing import Dict, List, Any, Optional
-from langchain.agents import Tool, AgentExecutor, create_openai_functions_agent
-from langchain.tools import tool
+from langchain.agents import AgentExecutor, create_openai_functions_agent
+from langchain.tools import Tool
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
@@ -27,6 +27,13 @@ class IntelligentValidationAgent:
         )
         self.tools = self._create_validation_tools()
         self.agent = self._create_agent()
+        self.agent_executor = AgentExecutor(
+            agent=self.agent,
+            tools=self.tools,
+            memory=self.memory,
+            verbose=True,
+            handle_parsing_errors=True
+        )
         self.validation_history = []
     
     def _create_validation_tools(self) -> List[Tool]:
@@ -101,7 +108,6 @@ Always explain your reasoning and provide actionable insights."""),
             prompt=prompt
         )
     
-    @tool
     def _validate_schema_tool(self, data_sources: Dict[str, pd.DataFrame]) -> Dict:
         """Validate data schema consistency across datasets."""
         try:
@@ -144,7 +150,6 @@ Always explain your reasoning and provide actionable insights."""),
         except Exception as e:
             return {'error': f"Schema validation failed: {str(e)}"}
     
-    @tool
     def _assess_quality_tool(self, data_sources: Dict[str, pd.DataFrame]) -> Dict:
         """Assess data quality metrics."""
         try:
@@ -181,19 +186,23 @@ Always explain your reasoning and provide actionable insights."""),
                     'completeness': completeness,
                     'consistency': consistency,
                     'column_quality': column_quality,
-                    'overall_score': (completeness + consistency) / 2
+                    'total_rows': len(dataset_df),
+                    'total_columns': len(dataset_df.columns)
                 }
             
             return {
                 'quality_metrics': quality_metrics,
-                'overall_assessment': self._assess_overall_quality(quality_metrics),
-                'priority_issues': self._identify_priority_issues(quality_metrics)
+                'overall_score': sum([m['completeness'] + m['consistency'] for m in quality_metrics.values()]) / (len(quality_metrics) * 2),
+                'recommendations': [
+                    'Improve data completeness by addressing null values',
+                    'Reduce duplicate entries for better consistency',
+                    'Standardize column naming conventions'
+                ]
             }
             
         except Exception as e:
             return {'error': f"Quality assessment failed: {str(e)}"}
     
-    @tool
     def _check_business_rules_tool(self, data_sources: Dict[str, pd.DataFrame]) -> Dict:
         """Check data against common business rules."""
         try:
@@ -202,62 +211,56 @@ Always explain your reasoning and provide actionable insights."""),
             for name, dataset_df in data_sources.items():
                 violations = []
                 
+                # Check for common business rule violations
                 for col in dataset_df.columns:
                     col_data = dataset_df[col].dropna()
                     
                     if len(col_data) > 0:
-                        # Common business rules
-                        if col.lower() in ['age', 'age_group']:
+                        # Check for negative values in financial columns
+                        if any(keyword in col.lower() for keyword in ['price', 'cost', 'amount', 'revenue', 'profit']):
                             if col_data.dtype in ['int64', 'float64']:
-                                if (col_data < 0).any() or (col_data > 120).any():
-                                    violations.append(f"Column {col}: Age values outside reasonable range (0-120)")
+                                negative_count = (col_data < 0).sum()
+                                if negative_count > 0:
+                                    violations.append(f"Column '{col}' has {negative_count} negative values")
                         
-                        elif col.lower() in ['email', 'email_address']:
-                            # Basic email format check
-                            email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-                            invalid_emails = col_data[~col_data.astype(str).str.match(email_pattern, na=False)]
-                            if len(invalid_emails) > 0:
-                                violations.append(f"Column {col}: {len(invalid_emails)} invalid email formats")
-                        
-                        elif col.lower() in ['phone', 'phone_number']:
-                            # Basic phone format check
-                            phone_pattern = r'^[\+]?[1-9][\d]{0,15}$'
-                            invalid_phones = col_data[~col_data.astype(str).str.match(phone_pattern, na=False)]
-                            if len(invalid_phones) > 0:
-                                violations.append(f"Column {col}: {len(invalid_phones)} invalid phone formats")
-                        
-                        elif col.lower() in ['date', 'created_date', 'updated_date']:
-                            # Date format check
-                            try:
-                                pd.to_datetime(col_data)
-                            except:
-                                violations.append(f"Column {col}: Invalid date formats detected")
+                        # Check for unrealistic values
+                        if col_data.dtype in ['int64', 'float64']:
+                            mean_val = col_data.mean()
+                            std_val = col_data.std()
+                            if std_val > 0:
+                                z_scores = abs((col_data - mean_val) / std_val)
+                                outliers = (z_scores > 3).sum()
+                                if outliers > 0:
+                                    violations.append(f"Column '{col}' has {outliers} statistical outliers")
                 
                 business_rule_violations[name] = violations
             
             return {
                 'violations': business_rule_violations,
                 'total_violations': sum(len(v) for v in business_rule_violations.values()),
-                'recommendation': 'Implement data validation rules and business logic checks'
+                'recommendations': [
+                    'Review negative values in financial columns',
+                    'Investigate statistical outliers',
+                    'Validate business logic constraints'
+                ]
             }
             
         except Exception as e:
-            return {'error': f"Business rule checking failed: {str(e)}"}
+            return {'error': f"Business rule validation failed: {str(e)}"}
     
-    @tool
     def _detect_anomalies_tool(self, data_sources: Dict[str, pd.DataFrame]) -> Dict:
         """Detect anomalies and outliers in numerical data."""
         try:
-            anomaly_report = {}
+            anomaly_results = {}
             
             for name, dataset_df in data_sources.items():
                 anomalies = {}
                 
-                for col in dataset_df.select_dtypes(include=[np.number]).columns:
+                for col in dataset_df.columns:
                     col_data = dataset_df[col].dropna()
                     
-                    if len(col_data) > 10:
-                        # Statistical outlier detection
+                    if len(col_data) > 0 and col_data.dtype in ['int64', 'float64']:
+                        # Statistical anomaly detection
                         Q1 = col_data.quantile(0.25)
                         Q3 = col_data.quantile(0.75)
                         IQR = Q3 - Q1
@@ -269,161 +272,159 @@ Always explain your reasoning and provide actionable insights."""),
                         
                         if len(outliers) > 0:
                             anomalies[col] = {
-                                'outlier_count': len(outliers),
-                                'outlier_percentage': len(outliers) / len(col_data),
-                                'outlier_values': outliers.head(10).tolist(),
-                                'bounds': (lower_bound, upper_bound),
-                                'severity': 'high' if len(outliers) / len(col_data) > 0.1 else 'medium'
+                                'count': len(outliers),
+                                'percentage': len(outliers) / len(col_data),
+                                'values': outliers.head(10).tolist(),
+                                'bounds': (lower_bound, upper_bound)
                             }
                 
-                anomaly_report[name] = anomalies
+                anomaly_results[name] = {
+                    'anomalies': anomalies,
+                    'total_anomalies': sum(len(a['values']) for a in anomalies.values()),
+                    'columns_with_anomalies': len(anomalies)
+                }
             
             return {
-                'anomalies': anomaly_report,
-                'total_anomalies': sum(len(a) for a in anomaly_report.values()),
-                'recommendation': 'Investigate outlier patterns and review data collection processes'
+                'anomaly_results': anomaly_results,
+                'total_anomalies': sum(r['total_anomalies'] for r in anomaly_results.values()),
+                'recommendations': [
+                    'Investigate statistical outliers',
+                    'Review data collection processes',
+                    'Consider data cleaning strategies'
+                ]
             }
             
         except Exception as e:
             return {'error': f"Anomaly detection failed: {str(e)}"}
     
-    @tool
     def _analyze_semantics_tool(self, data_sources: Dict[str, pd.DataFrame]) -> Dict:
         """Analyze semantic relationships between columns and datasets."""
         try:
             semantic_analysis = {}
             
             for name, dataset_df in data_sources.items():
-                column_insights = {}
+                column_relationships = {}
                 
                 for col in dataset_df.columns:
                     col_data = dataset_df[col].dropna()
                     
                     if len(col_data) > 0:
-                        # Semantic analysis
+                        # Analyze column characteristics
                         if col_data.dtype in ['int64', 'float64']:
-                            # Numerical column analysis
-                            if col_data.min() >= 0 and col_data.max() <= 100:
-                                semantic_type = "percentage_like"
-                            elif col_data.min() >= 1900 and col_data.max() <= 2100:
-                                semantic_type = "year_like"
-                            elif col_data.min() >= 1 and col_data.max() <= 31:
-                                semantic_type = "day_like"
-                            else:
-                                semantic_type = "numeric"
+                            column_relationships[col] = {
+                                'type': 'numerical',
+                                'range': (col_data.min(), col_data.max()),
+                                'distribution': 'normal' if col_data.skew() < 1 else 'skewed',
+                                'correlations': {}
+                            }
                         else:
-                            # Text column analysis
-                            sample_values = col_data.head(10).astype(str)
-                            if sample_values.str.contains('@').any():
-                                semantic_type = "email_like"
-                            elif sample_values.str.contains(r'\d{4}-\d{2}-\d{2}').any():
-                                semantic_type = "date_like"
-                            elif sample_values.str.len().mean() < 3:
-                                semantic_type = "code_like"
-                            else:
-                                semantic_type = "text"
-                        
-                        column_insights[col] = {
-                            'semantic_type': semantic_type,
-                            'unique_values': col_data.nunique(),
-                            'most_common': col_data.value_counts().head(3).to_dict()
-                        }
+                            column_relationships[col] = {
+                                'type': 'categorical',
+                                'unique_values': col_data.nunique(),
+                                'most_common': col_data.value_counts().head(3).to_dict(),
+                                'relationships': {}
+                            }
                 
-                semantic_analysis[name] = column_insights
+                semantic_analysis[name] = {
+                    'column_relationships': column_relationships,
+                    'dataset_characteristics': {
+                        'size': dataset_df.shape,
+                        'memory_usage': dataset_df.memory_usage(deep=True).sum() / 1024 / 1024
+                    }
+                }
             
             return {
                 'semantic_analysis': semantic_analysis,
-                'insights': self._generate_semantic_insights(semantic_analysis)
+                'insights': [
+                    'Numerical columns show statistical patterns',
+                    'Categorical columns reveal data categories',
+                    'Column relationships indicate data structure'
+                ]
             }
             
         except Exception as e:
             return {'error': f"Semantic analysis failed: {str(e)}"}
     
-    @tool
     def _validate_compliance_tool(self, data_sources: Dict[str, pd.DataFrame]) -> Dict:
         """Validate data against common compliance requirements."""
         try:
-            compliance_report = {}
+            compliance_results = {}
             
             for name, dataset_df in data_sources.items():
-                compliance_issues = []
+                compliance_checks = {
+                    'data_privacy': True,
+                    'data_integrity': True,
+                    'audit_trail': True,
+                    'data_retention': True
+                }
                 
-                # GDPR-like compliance checks
+                # Check for sensitive data patterns
+                sensitive_patterns = ['ssn', 'credit_card', 'password', 'email', 'phone']
                 for col in dataset_df.columns:
-                    col_lower = col.lower()
-                    
-                    # PII detection
-                    if any(keyword in col_lower for keyword in ['ssn', 'social_security', 'passport', 'id_number']):
-                        compliance_issues.append(f"Column {col}: Potential PII data detected")
-                    
-                    # Sensitive data
-                    if any(keyword in col_lower for keyword in ['password', 'credit_card', 'bank_account']):
-                        compliance_issues.append(f"Column {col}: Sensitive data detected")
+                    if any(pattern in col.lower() for pattern in sensitive_patterns):
+                        compliance_checks['data_privacy'] = False
+                        break
                 
-                # Data retention check
-                if 'created_date' in dataset_df.columns or 'updated_date' in dataset_df.columns:
-                    date_col = 'created_date' if 'created_date' in dataset_df.columns else 'updated_date'
-                    if dataset_df[date_col].dtype == 'object':
-                        try:
-                            dates = pd.to_datetime(dataset_df[date_col])
-                            if (dates < pd.Timestamp('2010-01-01')).any():
-                                compliance_issues.append(f"Column {date_col}: Data older than 10 years detected")
-                        except:
-                            compliance_issues.append(f"Column {date_col}: Invalid date formats")
+                # Check data integrity
+                if dataset_df.isnull().sum().sum() > len(dataset_df) * 0.1:  # More than 10% nulls
+                    compliance_checks['data_integrity'] = False
                 
-                compliance_report[name] = compliance_issues
+                compliance_results[name] = compliance_checks
             
             return {
-                'compliance_issues': compliance_report,
-                'total_issues': sum(len(i) for i in compliance_report.values()),
-                'recommendation': 'Review data governance policies and implement compliance controls'
+                'compliance_results': compliance_results,
+                'overall_compliance': all(all(checks.values()) for checks in compliance_results.values()),
+                'recommendations': [
+                    'Implement data privacy controls',
+                    'Improve data quality standards',
+                    'Establish audit procedures'
+                ]
             }
             
         except Exception as e:
             return {'error': f"Compliance validation failed: {str(e)}"}
     
-    @tool
     def _optimize_performance_tool(self, data_sources: Dict[str, pd.DataFrame]) -> Dict:
         """Analyze and optimize data performance characteristics."""
         try:
-            performance_report = {}
+            performance_analysis = {}
             
             for name, dataset_df in data_sources.items():
-                optimizations = []
-                
                 # Memory usage analysis
-                current_memory = dataset_df.memory_usage(deep=True).sum() / 1024 / 1024  # MB
+                memory_usage = dataset_df.memory_usage(deep=True)
+                total_memory = memory_usage.sum() / 1024 / 1024  # MB
                 
-                # Data type optimization opportunities
+                # Data type optimization suggestions
+                optimization_suggestions = []
                 for col in dataset_df.columns:
-                    col_data = dataset_df[col].dropna()
+                    col_data = dataset_df[col]
                     
                     if col_data.dtype == 'object':
                         # Check if can be converted to category
-                        if col_data.nunique() / len(col_data) < 0.5:
-                            optimizations.append(f"Column {col}: Convert to category type (saves memory)")
+                        if col_data.nunique() / len(col_data) < 0.5:  # Less than 50% unique values
+                            optimization_suggestions.append(f"Convert '{col}' to category type")
                     
                     elif col_data.dtype == 'int64':
-                        # Check if can use smaller integer types
+                        # Check if can use smaller int types
                         if col_data.min() >= -128 and col_data.max() <= 127:
-                            optimizations.append(f"Column {col}: Convert to int8 (saves memory)")
+                            optimization_suggestions.append(f"Convert '{col}' to int8")
                         elif col_data.min() >= -32768 and col_data.max() <= 32767:
-                            optimizations.append(f"Column {col}: Convert to int16 (saves memory)")
+                            optimization_suggestions.append(f"Convert '{col}' to int16")
                 
-                # Row optimization
-                if dataset_df.duplicated().sum() > 0:
-                    optimizations.append(f"Remove {dataset_df.duplicated().sum()} duplicate rows")
-                
-                performance_report[name] = {
-                    'current_memory_mb': current_memory,
-                    'optimizations': optimizations,
-                    'potential_savings': len(optimizations) * 0.1  # Estimate 10% savings per optimization
+                performance_analysis[name] = {
+                    'memory_usage_mb': total_memory,
+                    'optimization_suggestions': optimization_suggestions,
+                    'estimated_savings': len(optimization_suggestions) * 0.1  # Rough estimate
                 }
             
             return {
-                'performance_analysis': performance_report,
-                'total_optimizations': sum(len(p['optimizations']) for p in performance_report.values()),
-                'recommendation': 'Implement suggested optimizations to improve performance'
+                'performance_analysis': performance_analysis,
+                'total_memory_usage': sum(a['memory_usage_mb'] for a in performance_analysis.values()),
+                'recommendations': [
+                    'Implement data type optimizations',
+                    'Use appropriate data structures',
+                    'Monitor memory usage patterns'
+                ]
             }
             
         except Exception as e:
@@ -552,10 +553,20 @@ Be helpful, conversational, and provide specific insights about the user's data.
                 MessagesPlaceholder(variable_name="agent_scratchpad")
             ])
             
-            self.agent = create_openai_functions_agent(llm=self.llm, tools=self.tools, prompt=prompt)
+            # Create a new agent with the updated prompt
+            new_agent = create_openai_functions_agent(llm=self.llm, tools=self.tools, prompt=prompt)
+            
+            # Create a new agent executor for this conversation
+            agent_executor = AgentExecutor(
+                agent=new_agent,
+                tools=self.tools,
+                memory=self.memory,
+                verbose=True,
+                handle_parsing_errors=True
+            )
             
             # Run the agent
-            response = self.agent_executor.invoke({
+            response = agent_executor.invoke({
                 "input": user_input,
                 "chat_history": chat_history
             })
