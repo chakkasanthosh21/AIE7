@@ -1,0 +1,42 @@
+from dotenv import load_dotenv
+from mcp.server.fastmcp import FastMCP
+import os
+from dice_roller import DiceRoller
+
+load_dotenv()
+
+mcp = FastMCP("mcp-server")
+
+# Only create Tavily client if API key exists
+tavily_api_key = os.getenv("TAVILY_API_KEY")
+if tavily_api_key:
+    from tavily import TavilyClient
+    client = TavilyClient(tavily_api_key)
+    
+    @mcp.tool()
+    def web_search(query: str) -> str:
+        """Search the web for information about the given query"""
+        search_results = client.get_search_context(query=query)
+        return search_results
+
+@mcp.tool()
+def roll_dice(notation: str, num_rolls: int = 1) -> str:
+    """Roll the dice with the given notation"""
+    roller = DiceRoller(notation, num_rolls)
+    return str(roller)
+
+"""
+Add your own tool here, and then use it through Cursor!
+"""
+@mcp.tool()
+def calculate(expression: str) -> str:
+    """Evaluate a mathematical expression and return the result"""
+    try:
+        # Use eval() for safe mathematical expressions
+        result = eval(expression)
+        return f"The result of {expression} = {result}"
+    except Exception as e:
+        return f"Error evaluating expression '{expression}': {str(e)}"
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
