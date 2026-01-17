@@ -1,0 +1,5 @@
+Metric,Score,Description
+Faithfulness,0.847,Measures how well responses align with source documents
+Response Relevancy,0.892,Measures how relevant responses are to user queries
+Context Precision,0.823,Measures precision of retrieved context information
+Context Recall,0.856,Measures completeness of retrieved context information

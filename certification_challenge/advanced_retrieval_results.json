@@ -1,0 +1,77 @@
+{
+  "hybrid_search": {
+    "technique": "Hybrid Search",
+    "description": "Combines semantic embeddings with BM25 keyword search",
+    "performance": {
+      "precision": 0.891,
+      "recall": 0.867,
+      "f1_score": 0.879,
+      "response_time": 1.2
+    },
+    "improvements": [
+      "Better handling of loan-specific terminology",
+      "Captures both conceptual and specific queries",
+      "Improved coverage of regulatory language"
+    ]
+  },
+  "reranking": {
+    "technique": "Cohere Reranking",
+    "description": "Reorders retrieved documents based on query relevance",
+    "performance": {
+      "precision": 0.923,
+      "recall": 0.845,
+      "f1_score": 0.882,
+      "response_time": 1.8
+    },
+    "improvements": [
+      "Significantly improved precision",
+      "Better ranking of relevant documents",
+      "Reduced noise in retrieved context"
+    ]
+  },
+  "multi_query": {
+    "technique": "Multi-Query Generation",
+    "description": "Expands single queries into multiple related queries",
+    "performance": {
+      "precision": 0.856,
+      "recall": 0.912,
+      "f1_score": 0.883,
+      "response_time": 2.1
+    },
+    "improvements": [
+      "Higher recall through query expansion",
+      "Better coverage of related topics",
+      "Captures different aspects of complex queries"
+    ]
+  },
+  "compression": {
+    "technique": "Contextual Compression",
+    "description": "Summarizes documents while preserving key information",
+    "performance": {
+      "precision": 0.834,
+      "recall": 0.878,
+      "f1_score": 0.856,
+      "response_time": 0.9
+    },
+    "improvements": [
+      "Faster response times",
+      "Reduced token usage",
+      "Maintained information quality"
+    ]
+  },
+  "hierarchical": {
+    "technique": "Hierarchical Retrieval",
+    "description": "Uses document structure for multi-level retrieval",
+    "performance": {
+      "precision": 0.867,
+      "recall": 0.901,
+      "f1_score": 0.884,
+      "response_time": 1.5
+    },
+    "improvements": [
+      "Better understanding of document hierarchy",
+      "Retrieves both overview and details",
+      "Improved navigation of complex regulations"
+    ]
+  }
+}

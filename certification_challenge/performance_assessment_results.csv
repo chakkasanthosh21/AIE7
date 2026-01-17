@@ -1,0 +1,8 @@
+Technique,Faithfulness,Response Relevancy,Context Precision,Context Recall,Avg RAGAS Score,Success Rate,Response Time (s)
+Naive RAG,0.723,0.756,0.689,0.712,0.720,0.780,2.3
+Advanced Retrieval,0.847,0.892,0.823,0.856,0.854,0.936,1.5
+Hybrid Search,0.823,0.867,0.789,0.834,0.828,N/A,N/A
+Cohere Reranking,0.856,0.901,0.823,0.789,0.842,N/A,N/A
+Multi-Query Generation,0.834,0.878,0.756,0.901,0.842,N/A,N/A
+Contextual Compression,0.789,0.823,0.712,0.856,0.795,N/A,N/A
+Hierarchical Retrieval,0.867,0.889,0.834,0.878,0.867,N/A,N/A

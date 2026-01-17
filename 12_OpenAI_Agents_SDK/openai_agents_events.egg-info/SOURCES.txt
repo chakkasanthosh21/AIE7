@@ -1,0 +1,7 @@
+README.md
+pyproject.toml
+openai_agents_events.egg-info/PKG-INFO
+openai_agents_events.egg-info/SOURCES.txt
+openai_agents_events.egg-info/dependency_links.txt
+openai_agents_events.egg-info/requires.txt
+openai_agents_events.egg-info/top_level.txt
